@@ -9,56 +9,60 @@ import io.github.kineks.composecalculator.data.MathParser
  * 根据光标状态插入文本
  * @return TextFieldValue
  */
-fun TextFieldValue.append(text: String,offset: Int = 0): TextFieldValue {
+fun TextFieldValue.append(
+    text: String,
+    offset: Int = 0,
+    callback: (index: Int, text: String,last: String?, OneChar: Boolean, cursorHide: Boolean, cursorInsert: Boolean) -> Unit = { _, _, _, _, _,_ -> }
+): TextFieldValue {
+
+    if (text.isEmpty()&&this.text.isEmpty()) return this
 
     // 由于 TextRange 索引是从 1 开始，0 代表光标被隐藏
     // 所以实际和 String 的 index 偏移 1
     var index: Int
-    val stringBuilder = when(true) {
+    val stringBuilder = when (true) {
         // 光标隐藏
         (selection.max == 0) -> {
             (this.text + text).apply {
                 index = length
+                callback(index, this@append.text, this@append.text.lastOrNull()?.toString(),text.length == 1,true,false)
             }
         }
         // 光标插入
         selection.collapsed -> {
-            StringBuilder(this.text).insert(selection.max,text).apply {
+            StringBuilder(this.text).insert(selection.max, text).apply {
                 index = selection.max + text.length
+                callback(index, this@append.text,
+                    this@append.text[selection.max-1].toString(),text.length == 1,false,true)
             }
         }
         // 选中多个
         else -> {
             index = selection.min + 1
+            callback(index, this.text, this.text[selection.min].toString(),text.length == 1,false,false)
             this.text.replaceRange(
                 startIndex = selection.min,
                 endIndex = selection.max,
                 text
             )
         }
-    }
+    }.toString()
 
+    if (text.isEmpty()) return this
     return copy(
-        text = stringBuilder.toString(),
+        text = stringBuilder,
         selection = TextRange(index + offset)
     )
 }
 
-fun String.replaceIfEqual(oldValue: String?,newValue: String) = let {
-    (if (it == oldValue) it.substring(
-        0,
-        it.lastIndex
-    ) else it) + newValue
-}
-
 fun String.parse(): Double = this
-    .replace("−","-")
-    .replace("×","*")
-    .replace("÷","/")
-    .replace("（","(")
-    .replace("）",")")
-    .replace("(","(")
-    .replace(")",")")
+    .replace("−", "-")
+    .replace("×", "*")
+    .replace("÷", "/")
+    .replace("（", "(")
+    .replace("）", ")")
+    .replace("(", "(")
+    .replace(")", ")")
     .let { MathParser().parse(it) }
 
 /**
@@ -75,24 +79,3 @@ fun String.subZeroAndDot(): String {
 }
 
 fun getString(@StringRes id: Int) = App.context.getString(id)
-
-val OperatorMap = mutableMapOf(
-    Pair("+", Operator.plus),
-    Pair("-", Operator.minus),
-    Pair("−", Operator.minus),
-    Pair("*", Operator.times),
-    Pair("×", Operator.times),
-    Pair("/", Operator.div),
-    Pair("÷", Operator.div),
-    Pair("%", Operator.rem),
-    Pair("=", Operator.equal),
-)
-
-enum class Operator {
-    plus,   //  +  加
-    minus,  //  -  减
-    times,  //  *  乘
-    div,    //  /  除
-    rem,    //  %  求余
-    equal   //  =  等于，如果是缺省值则返回数值本身
-}

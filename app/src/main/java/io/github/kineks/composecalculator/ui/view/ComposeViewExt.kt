@@ -2,7 +2,8 @@ package io.github.kineks.composecalculator.ui.view
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -58,9 +59,13 @@ fun OperatorButton(
 ) {
     val modifier =
     if (isHorizontal())
-        Modifier.padding(3.dp).padding(horizontal = 4.dp)
+        Modifier
+            .padding(3.dp)
+            .padding(horizontal = 4.dp)
     else
-        Modifier.padding(5.dp).padding(vertical = 1.dp)
+        Modifier
+            .padding(5.dp)
+            .padding(vertical = 1.dp)
 
 
     Surface(
@@ -79,8 +84,8 @@ fun OperatorButton(
                     if (isHorizontal())
                         ratio + 0.3f
                     else
-                        ratio
-                    , true),
+                        ratio, true
+                ),
             contentAlignment = Alignment.Center,
             content = (content ?: {
                 Text(
@@ -110,9 +115,9 @@ fun ColorItem(
         color = backgroundColor,
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
+            .height(100.dp)
             .padding(0.dp)
-            .padding(top = 1.dp, bottom = 1.dp)
+            .padding(top = 0.dp, bottom = 0.dp)
             .clickable {
                 clickable()
             }
@@ -120,7 +125,7 @@ fun ColorItem(
         Box(
             modifier = Modifier
                 //.fillMaxHeight()
-                .fillMaxWidth()
+                .fillMaxWidth().offset(y =(-18).dp)
             //.aspectRatio(ratio,false)
             ,
             contentAlignment = Alignment.Center
@@ -130,10 +135,10 @@ fun ColorItem(
                 color = color,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 25.dp),
+                    .padding(start = 22.dp),
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.headlineLarge
+                style = MaterialTheme.typography.headlineSmall
             )
         }
 
@@ -141,119 +146,135 @@ fun ColorItem(
 }
 
 @Composable
-fun ColorList() {
+fun ColorList(clickable: () -> Unit) {
 
-    LazyColumn {
+    LazyVerticalGrid(columns = GridCells.Adaptive(180.dp), modifier = Modifier.statusBarsPadding())  {
         item {
             ColorItem(
                 text = "Primary",
                 color = MaterialTheme.colorScheme.onPrimary,
-                backgroundColor = MaterialTheme.colorScheme.primary
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "PrimaryContainer",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                backgroundColor = MaterialTheme.colorScheme.primaryContainer
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "InversePrimary",
                 color = MaterialTheme.colorScheme.onPrimary,
-                backgroundColor = MaterialTheme.colorScheme.inversePrimary
+                backgroundColor = MaterialTheme.colorScheme.inversePrimary,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "Secondary",
                 color = MaterialTheme.colorScheme.onSecondary,
-                backgroundColor = MaterialTheme.colorScheme.secondary
+                backgroundColor = MaterialTheme.colorScheme.secondary,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "SecondaryContainer",
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
-                backgroundColor = MaterialTheme.colorScheme.secondaryContainer
+                backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "Tertiary",
                 color = MaterialTheme.colorScheme.onTertiary,
-                backgroundColor = MaterialTheme.colorScheme.tertiary
+                backgroundColor = MaterialTheme.colorScheme.tertiary,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "Surface",
                 color = MaterialTheme.colorScheme.onSurface,
-                backgroundColor = MaterialTheme.colorScheme.surface
+                backgroundColor = MaterialTheme.colorScheme.surface,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "SurfaceVariant",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "SurfaceTint",
                 color = MaterialTheme.colorScheme.onSurface,
-                backgroundColor = MaterialTheme.colorScheme.surfaceTint
+                backgroundColor = MaterialTheme.colorScheme.surfaceTint,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "Primary",
                 color = MaterialTheme.colorScheme.onPrimary,
-                backgroundColor = MaterialTheme.colorScheme.primary
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "InverseSurface",
                 color = MaterialTheme.colorScheme.inverseOnSurface,
-                backgroundColor = MaterialTheme.colorScheme.inverseSurface
+                backgroundColor = MaterialTheme.colorScheme.inverseSurface,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "Error",
                 color = MaterialTheme.colorScheme.onError,
-                backgroundColor = MaterialTheme.colorScheme.error
+                backgroundColor = MaterialTheme.colorScheme.error,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "ErrorContainer",
                 color = MaterialTheme.colorScheme.onErrorContainer,
-                backgroundColor = MaterialTheme.colorScheme.errorContainer
+                backgroundColor = MaterialTheme.colorScheme.errorContainer,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "Outline",
                 color = MaterialTheme.colorScheme.outlineVariant,
-                backgroundColor = MaterialTheme.colorScheme.outline
+                backgroundColor = MaterialTheme.colorScheme.outline,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "OutlineVariant",
                 color = MaterialTheme.colorScheme.outline,
-                backgroundColor = MaterialTheme.colorScheme.outlineVariant
+                backgroundColor = MaterialTheme.colorScheme.outlineVariant,
+                clickable = clickable
             )
         }
         item {
             ColorItem(
                 text = "Scrim",
                 color = MaterialTheme.colorScheme.onBackground,
-                backgroundColor = MaterialTheme.colorScheme.scrim
+                backgroundColor = MaterialTheme.colorScheme.scrim,
+                clickable = clickable
             )
         }
 

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">ComposeCalculator</string>
     <string name="data_error">Data Error</string>
+    <string name="colors_list">Colors List</string>
 </resources>

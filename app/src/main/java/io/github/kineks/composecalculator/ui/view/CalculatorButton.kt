@@ -10,8 +10,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.kineks.composecalculator.ui.layout.isHorizontal
@@ -91,14 +95,14 @@ fun CalculatorButton(
 @Composable
 fun RowOperatorButton(
     modifier: Modifier = Modifier,
-    rowOperatorButton: @Composable (text: String) -> Unit = {
+    @Suppress("UNINITIALIZED_PARAMETER_WARNING") rowOperatorButton: @Composable (text: String) -> Unit = {
         Text(
             text = it,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineLarge,
             modifier = modifier
-                //.size(width = 68.dp, height = 35.dp)
+                .rotate(1f)
                 .clickable { clickable(it) }
         )
     },
@@ -113,16 +117,10 @@ fun RowOperatorButton(
     ) {
         LazyVerticalGrid(columns = GridCells.Fixed(4)) {
             item { rowOperatorButton("sin") }
-            item { rowOperatorButton("cos") }
+            item { rowOperatorButton("abs") }
             item { rowOperatorButton("pi") }
             item { rowOperatorButton("e") }
-        }/*
-        LazyRow {
-            item { rowOperatorButton("sin") }
-            item { rowOperatorButton("cos") }
-            item { rowOperatorButton("pi") }
-            item { rowOperatorButton("e") }
-        }*/
+        }
     }
 
 }
@@ -133,4 +131,9 @@ fun String.isNumber(): Boolean = CalculatorNumberButton.indexOf(this) != -1
 fun String.isOperator(): Boolean = CalculatorOperatorButton.indexOf(this) != -1
 fun String.isOperatorAC(): Boolean = "AC" == this
 fun String.isOperatorBackSpace(): Boolean = "←" == this
-fun String.isOperatorArithmeticBrackets(): Boolean = "()" == this
+fun String.isOperatorBracketStart(): Boolean = "(" == this
+fun String.isOperatorBracketEnd(): Boolean = ")" == this
+fun String.isOperatorBrackets(): Boolean = "()" == this || isOperatorBracketStart() || isOperatorBracketEnd()
+
+// 标记左括号的计数值,
+var operatorArithmeticBracketsStartCounts by mutableStateOf(0)
