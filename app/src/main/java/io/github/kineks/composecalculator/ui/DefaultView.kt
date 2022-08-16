@@ -1,13 +1,16 @@
 package io.github.kineks.composecalculator.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -23,8 +26,12 @@ import io.github.kineks.composecalculator.ui.view.*
 
 @Composable
 fun DefaultView() {
-
-    rememberSystemUiController().setStatusBarColor(MaterialTheme.colorScheme.surface)
+    val systemUiController = rememberSystemUiController()
+    val useDarkIcons = !isSystemInDarkTheme()
+    val color = MaterialTheme.colorScheme.surfaceColorAtElevation(5.dp)
+    SideEffect {
+        systemUiController.setStatusBarColor(Color.Transparent, useDarkIcons)
+    }
 
     var colorDisplay by remember {
         mutableStateOf(false)
@@ -55,8 +62,7 @@ fun DefaultView() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.TopCenter
+            .background(color = MaterialTheme.colorScheme.background)
     ) {
 
         TheLayout(boxScope = this) {
@@ -139,9 +145,8 @@ fun DefaultView() {
                 modifier = Modifier
                     .isHorizontal {
                         weight(1.2f)
-                            .padding(
-                                vertical = 2.dp, horizontal = 18.dp
-                            )
+                            .padding(horizontal = 18.dp)
+                            .padding(top = 16.dp, bottom = 4.dp)
                     }
                     .isNotHorizontal {
                         padding(10.dp)
