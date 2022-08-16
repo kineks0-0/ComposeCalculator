@@ -31,7 +31,8 @@ import io.github.kineks.composecalculator.append
 class CalculatorTextFieldState(
     private var _textFieldValue: MutableState<TextFieldValue>,
     private var _textFieldLabel: MutableState<String>,
-    val textFieldCursorEnabled: () -> Boolean,
+    val isError: MutableState<Boolean>,
+    val textFieldCursorEnabled: (CalculatorTextFieldState) -> Boolean,
     val onDone: (KeyboardActionScope.(CalculatorTextFieldState) -> Unit)
 ) {
     var textFieldValue
@@ -45,16 +46,27 @@ class CalculatorTextFieldState(
             _textFieldLabel.value = value
         }
 
+    fun isError() {
+        isError.value = true
+    }
+
+    fun isNoError() {
+        isError.value = false
+    }
+
     fun append(text: String, offset: Int = 0) {
+        isNoError()
         _textFieldValue.value = _textFieldValue.value.append(text, offset)
     }
 
     fun clearTextField() {
+        isNoError()
         _textFieldValue.value = TextFieldValue("0")
         _textFieldLabel.value = ""
     }
 
     fun setTextField(text: String) {
+        isNoError()
         _textFieldValue.value = TextFieldValue(
             text = text,
             selection = TextRange(text.length)
@@ -65,9 +77,10 @@ class CalculatorTextFieldState(
 
 @Composable
 fun rememberCalculatorTextFieldState(
-    textFieldValue: MutableState<TextFieldValue> = mutableStateOf(TextFieldValue("0")),
-    textFieldLabel: MutableState<String> = mutableStateOf(""),
-    cursorEnabled: () -> Boolean = { textFieldValue.value.text.isNotEmpty() },
+    textFieldValue: TextFieldValue = TextFieldValue("0"),
+    textFieldLabel: String = "",
+    isError: Boolean = false,
+    cursorEnabled: (CalculatorTextFieldState) -> Boolean = { it.textFieldValue.text.isNotEmpty() },
     onDone: (KeyboardActionScope.(CalculatorTextFieldState) -> Unit) = { }
 ) = rememberSaveable(saver = Saver(
     save = {
@@ -77,13 +90,18 @@ fun rememberCalculatorTextFieldState(
         CalculatorTextFieldState(
             mutableStateOf(TextFieldValue(it[1])),
             mutableStateOf(it[0]),
+            mutableStateOf(isError),
             cursorEnabled,
             onDone
         )
     }
 )) {
     CalculatorTextFieldState(
-        textFieldValue, textFieldLabel, cursorEnabled, onDone
+        mutableStateOf(textFieldValue),
+        mutableStateOf(textFieldLabel),
+        mutableStateOf(isError),
+        cursorEnabled,
+        onDone
     )
 }
 
@@ -112,6 +130,7 @@ fun CalculatorTextField(
                         }
                 )
             },
+            isError = state.isError.value,
             keyboardActions = KeyboardActions(onDone = { onDone(state) }),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp),
@@ -122,13 +141,17 @@ fun CalculatorTextField(
                 ), textAlign = TextAlign.End
             ),
             colors = TextFieldDefaults.textFieldColors(
-                textColor = MaterialTheme.colorScheme.onSurface,
+                textColor =
+                if (state.isError.value)
+                    MaterialTheme.colorScheme.error
+                else
+                    MaterialTheme.colorScheme.onSurface,
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                cursorColor = if (textFieldCursorEnabled()) MaterialTheme.colorScheme.primary else Color.Transparent,
-                errorCursorColor = Color.Transparent,
+                cursorColor = if (textFieldCursorEnabled(state)) MaterialTheme.colorScheme.primary else Color.Transparent,
+                //errorCursorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent,
+                //errorIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
                 focusedLeadingIconColor = Color.Transparent,
                 unfocusedLeadingIconColor = Color.Transparent,
@@ -143,7 +166,7 @@ fun CalculatorTextField(
                 focusedLabelColor = MaterialTheme.colorScheme.onSurface,
                 unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
                 disabledLabelColor = MaterialTheme.colorScheme.onSurface,
-                errorLabelColor = MaterialTheme.colorScheme.onSurface,
+                //errorLabelColor = MaterialTheme.colorScheme.onSurface,
 
                 placeholderColor = Color.Transparent,
                 disabledPlaceholderColor = Color.Transparent

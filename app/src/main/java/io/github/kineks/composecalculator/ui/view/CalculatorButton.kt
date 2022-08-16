@@ -1,20 +1,25 @@
 package io.github.kineks.composecalculator.ui.view
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Backspace
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.kineks.composecalculator.ui.layout.isHorizontal
 
 @Composable
 fun CalculatorButton(
-    onNumberClick: (text:String) -> Unit,
-    onOperatorClick: (text:String) -> Unit,
+    onNumberClick: (text: String) -> Unit,
+    onOperatorClick: (text: String) -> Unit,
     startCalculatingEquations: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -83,8 +88,47 @@ fun CalculatorButton(
     }
 }
 
-val CalculatorOperatorButton = listOf("AC","()","%","÷","×","−","+","←","=")
-val CalculatorNumberButton = listOf("1","2","3","4","5","6","7","8","9","0",".")
+@Composable
+fun RowOperatorButton(
+    modifier: Modifier = Modifier,
+    rowOperatorButton: @Composable (text: String) -> Unit = {
+        Text(
+            text = it,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = modifier
+                //.size(width = 68.dp, height = 35.dp)
+                .clickable { clickable(it) }
+        )
+    },
+    clickable: (text: String) -> Unit
+) {
+
+    Box(
+        contentAlignment = if (isHorizontal()) Alignment.TopStart else Alignment.BottomStart,
+        modifier = Modifier
+            .fillMaxSize()
+            .isHorizontal { padding(start = 2.dp, top = 18.dp).statusBarsPadding() }
+    ) {
+        LazyVerticalGrid(columns = GridCells.Fixed(4)) {
+            item { rowOperatorButton("sin") }
+            item { rowOperatorButton("cos") }
+            item { rowOperatorButton("pi") }
+            item { rowOperatorButton("e") }
+        }/*
+        LazyRow {
+            item { rowOperatorButton("sin") }
+            item { rowOperatorButton("cos") }
+            item { rowOperatorButton("pi") }
+            item { rowOperatorButton("e") }
+        }*/
+    }
+
+}
+
+val CalculatorOperatorButton = listOf("AC", "()", "%", "÷", "×", "−", "+", "←", "=")
+val CalculatorNumberButton = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".")
 fun String.isNumber(): Boolean = CalculatorNumberButton.indexOf(this) != -1
 fun String.isOperator(): Boolean = CalculatorOperatorButton.indexOf(this) != -1
 fun String.isOperatorAC(): Boolean = "AC" == this

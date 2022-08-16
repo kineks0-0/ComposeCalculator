@@ -52,6 +52,7 @@ fun OperatorButton(
     ratio: Float = 1.135f,
     alpha: Float = 0.9f,
     tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 1.dp,
     content: @Composable (BoxScope.() -> Unit)? = null,
     clickable: (text: String) -> Unit
 ) {
@@ -66,7 +67,7 @@ fun OperatorButton(
         shape = RoundedCornerShape(50),
         onClick = { clickable(text) },
         tonalElevation = tonalElevation,
-        shadowElevation = 1.dp,
+        shadowElevation = shadowElevation,
         //contentColor = backgroundColor,
         color = backgroundColor.copy(alpha = alpha),
         modifier = modifier

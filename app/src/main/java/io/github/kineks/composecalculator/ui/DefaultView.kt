@@ -2,11 +2,12 @@ package io.github.kineks.composecalculator.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +29,6 @@ import io.github.kineks.composecalculator.ui.view.*
 fun DefaultView() {
     val systemUiController = rememberSystemUiController()
     val useDarkIcons = !isSystemInDarkTheme()
-    val color = MaterialTheme.colorScheme.surfaceColorAtElevation(5.dp)
     SideEffect {
         systemUiController.setStatusBarColor(Color.Transparent, useDarkIcons)
     }
@@ -36,6 +36,7 @@ fun DefaultView() {
     var colorDisplay by remember {
         mutableStateOf(false)
     }
+
     val startCalculatingEquations: (CalculatorTextFieldState) -> Unit by remember {
         mutableStateOf({ textFieldState ->
             textFieldState.apply {
@@ -44,12 +45,17 @@ fun DefaultView() {
                         clearTextField()
                     } else {
                         textFieldLabel = textFieldValue.text
+                        val number = textFieldValue.text.parse().toString()
                         setTextField(
-                            textFieldValue.text.parse().toString().subZeroAndDot()
+                            number.subZeroAndDot()
                         )
+                        if (number == "NaN") {
+                            textFieldState.isError()
+                        }
                     }
                 } catch (e: Exception) {
                     setTextField(getString(R.string.data_error))
+                    textFieldState.isError()
                 }
             }
         })
@@ -76,13 +82,12 @@ fun DefaultView() {
                     tonalElevation = 5.dp,
                     shadowElevation = 5.dp,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
+                        .fillMaxSize()
                         .isNotHorizontal {
                             padding(bottom = 50.dp)
                         }
 
-                ) {}
+                ) { }
 
 
                 CalculatorTextField(
@@ -95,18 +100,24 @@ fun DefaultView() {
                             padding(bottom = 50.dp)
                         }
                 )
+
+
+                RowOperatorButton {
+                    textFieldState.append(it)
+                }
+
             }
 
             CalculatorButton(
                 onNumberClick = { text: String ->
                     textFieldState.textFieldLabel = ""
                     textFieldState.setTextField(
-                        textFieldState.textFieldValue.text.replaceIfEqual("0",text)
+                        textFieldState.textFieldValue.text.replaceIfEqual("0", text)
                     )
                 },
                 onOperatorClick = { text: String ->
                     textFieldState.textFieldLabel = ""
-                    when(true) {
+                    when (true) {
                         text.isOperatorAC() -> {
                             textFieldState.clearTextField()
                         }
@@ -130,7 +141,9 @@ fun DefaultView() {
                         text.isOperator() -> {
                             textFieldState.setTextField(
                                 textFieldState.textFieldValue.text.let {
-                                    (if (OperatorMap[it.lastOrNull().toString()] != null) it.substring(
+                                    (if (OperatorMap[it.lastOrNull()
+                                            .toString()] != null
+                                    ) it.substring(
                                         0,
                                         it.lastIndex
                                     ) else it) + text
@@ -159,7 +172,6 @@ fun DefaultView() {
     }
 
 }
-
 
 
 @Preview(showBackground = true)
