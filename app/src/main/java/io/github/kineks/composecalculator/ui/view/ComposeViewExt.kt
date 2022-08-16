@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.github.kineks.composecalculator.ui.layout.isHorizontal
 
 @Composable
 fun NumberButton(
@@ -26,6 +27,7 @@ fun NumberButton(
     ratio: Float = 1.15f,
     alpha: Float = 1f,
     tonalElevation: Dp = 1.dp,
+    content: @Composable (BoxScope.() -> Unit)? = null,
     clickable: (text: String) -> Unit
 ) {
     OperatorButton(
@@ -35,10 +37,12 @@ fun NumberButton(
         ratio = ratio,
         alpha = alpha,
         tonalElevation = tonalElevation,
+        content = content,
         clickable = clickable
     )
 }
 
+@Suppress("OPT_IN_IS_NOT_ENABLED")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OperatorButton(
@@ -48,8 +52,16 @@ fun OperatorButton(
     ratio: Float = 1.135f,
     alpha: Float = 0.9f,
     tonalElevation: Dp = 0.dp,
+    content: @Composable (BoxScope.() -> Unit)? = null,
     clickable: (text: String) -> Unit
 ) {
+    val modifier =
+    if (isHorizontal())
+        Modifier.padding(3.dp).padding(horizontal = 4.dp)
+    else
+        Modifier.padding(5.dp).padding(vertical = 1.dp)
+
+
     Surface(
         shape = RoundedCornerShape(50),
         onClick = { clickable(text) },
@@ -57,27 +69,27 @@ fun OperatorButton(
         shadowElevation = 1.dp,
         //contentColor = backgroundColor,
         color = backgroundColor.copy(alpha = alpha),
-        modifier = Modifier
-            //.fillMaxHeight()
-            .padding(5.dp)
-            .padding(top = 1.dp, bottom = 1.dp)
+        modifier = modifier
     ) {
         Box(
             modifier = Modifier
                 .alpha(1f)
-                //.fillMaxHeight()
-                //.fillMaxWidth(ratio)
-                .aspectRatio(ratio, true),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = text,
-                color = color,
-                //fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.headlineLarge
-            )
-        }
+                .aspectRatio(
+                    if (isHorizontal())
+                        ratio + 0.3f
+                    else
+                        ratio
+                    , true),
+            contentAlignment = Alignment.Center,
+            content = (content ?: {
+                Text(
+                    text = text,
+                    color = color,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.headlineLarge
+                )
+            })
+        )
 
     }
 }
@@ -247,6 +259,3 @@ fun ColorList() {
     }
 }
 
-@Composable
-fun CalculatorButtonLayout() {
-}

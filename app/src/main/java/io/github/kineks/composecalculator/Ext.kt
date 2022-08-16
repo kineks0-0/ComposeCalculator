@@ -44,6 +44,13 @@ fun TextFieldValue.append(text: String,offset: Int = 0): TextFieldValue {
     )
 }
 
+fun String.replaceIfEqual(oldValue: String?,newValue: String) = let {
+    (if (it == oldValue) it.substring(
+        0,
+        it.lastIndex
+    ) else it) + newValue
+}
+
 fun String.parse(): Double = this
     .replace("−","-")
     .replace("×","*")
@@ -68,3 +75,24 @@ fun String.subZeroAndDot(): String {
 }
 
 fun getString(@StringRes id: Int) = App.context.getString(id)
+
+val OperatorMap = mutableMapOf(
+    Pair("+", Operator.plus),
+    Pair("-", Operator.minus),
+    Pair("−", Operator.minus),
+    Pair("*", Operator.times),
+    Pair("×", Operator.times),
+    Pair("/", Operator.div),
+    Pair("÷", Operator.div),
+    Pair("%", Operator.rem),
+    Pair("=", Operator.equal),
+)
+
+enum class Operator {
+    plus,   //  +  加
+    minus,  //  -  减
+    times,  //  *  乘
+    div,    //  /  除
+    rem,    //  %  求余
+    equal   //  =  等于，如果是缺省值则返回数值本身
+}
