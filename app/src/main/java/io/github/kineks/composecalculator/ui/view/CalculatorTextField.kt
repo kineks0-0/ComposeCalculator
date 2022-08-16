@@ -161,13 +161,14 @@ fun CalculatorTextField(
                     if (itLast != last && last?.isOperatorBracketEnd() == true) operatorArithmeticBracketsStartCounts++
                 }
                 value = it
-            },// todo: 对比差异值 避免键盘删除括号导致括号计数
+            },// todo: 对比差异值 避免键盘删除括号导致括号计数异常
             label = {
                 Text(text = label,
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier
                         .alpha(0.8f)
                         .clickable {
+                            // 点击可以将 Label 里的算式重新放回 输入框
                             if (label.isNotEmpty()) setTextField(label)
                         })
             },
@@ -176,16 +177,27 @@ fun CalculatorTextField(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp),
             modifier = modifier.fillMaxWidth(),
+            // 根据文本长度调整大小，从而显示效果类似 TextView 的 AutoSize
             textStyle = TextStyle(
                 fontSize = TextUnit(
                     50f + 80f / (value.text.length / 6 + 1), TextUnitType.Sp
                 ), textAlign = TextAlign.End
             ),
             colors = TextFieldDefaults.textFieldColors(
-                textColor = if (state.isError.value) MaterialTheme.colorScheme.error
-                else MaterialTheme.colorScheme.onSurface,
+
+                textColor =
+                if (state.isError.value)
+                    MaterialTheme.colorScheme.error
+                else
+                    MaterialTheme.colorScheme.onSurface,
+
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                cursorColor = if (textFieldCursorEnabled(state)) MaterialTheme.colorScheme.primary else Color.Transparent,
+                cursorColor =
+                if (textFieldCursorEnabled(state))
+                    MaterialTheme.colorScheme.primary
+                else
+                    Color.Transparent,
+
                 //errorCursorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
@@ -201,6 +213,7 @@ fun CalculatorTextField(
                 errorTrailingIconColor = Color.Transparent,
                 containerColor = Color.Transparent,
 
+                // Label 颜色
                 focusedLabelColor = MaterialTheme.colorScheme.onSurface,
                 unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
                 disabledLabelColor = MaterialTheme.colorScheme.onSurface,

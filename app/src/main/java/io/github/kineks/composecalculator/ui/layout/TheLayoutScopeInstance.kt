@@ -12,6 +12,9 @@ import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.Measured
 import androidx.compose.ui.layout.VerticalAlignmentLine
 
+//  扒 ColumnSop 和 RowScope 的源码接口实现的
+//  但 ColumnSop 和 RowScope 接口的 Modifier.weight(weight: Float, fill: Boolean) 因为重覆盖默认值所以没法同时实现两个接口
+//  但不实现接口其实也能用,反正这个类只是个代理类
 @LayoutScopeMarker
 @Immutable
 class TheLayoutScopeInstance(
@@ -80,6 +83,7 @@ class TheLayoutScopeInstance(
 
 }
 
+//  避免编辑器一直报 Wrong 就弄个接口, 不用实现接口也能用
 /**
  * Scope for the children of [TheLayout].
  */
@@ -114,7 +118,7 @@ interface TheLayoutScope {
 
 
 /***
- * 如果当前是横屏则执行: Modifier
+ * 如果当前是横屏则执行: Modifier.isHorizontal{ this }
  */
 @Stable
 fun Modifier.isHorizontal(doWork: Modifier.() -> Modifier) = composed {
@@ -123,7 +127,7 @@ fun Modifier.isHorizontal(doWork: Modifier.() -> Modifier) = composed {
 }
 
 /***
- * 如果当前不是横屏则执行: Modifier
+ * 如果当前不是横屏则执行: Modifier.isNotHorizontal{ this }
  */
 @Stable
 fun Modifier.isNotHorizontal(doWork: Modifier.() -> Modifier) = composed {

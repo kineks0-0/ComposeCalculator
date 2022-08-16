@@ -4,6 +4,7 @@ import java.util.*
 import kotlin.math.abs
 import kotlin.math.sin
 
+//  虽然自己试过实现一个, 但轮子没必要每个都重新造嘛
 /**
  * 代码来自 https://gist.github.com/ichenhe/a438769a2c40947d2d3717541e21e007
  */

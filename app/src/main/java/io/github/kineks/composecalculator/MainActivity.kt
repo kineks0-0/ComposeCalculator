@@ -12,6 +12,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            // 沉浸状态栏
             WindowCompat.setDecorFitsSystemWindows(window, false)
             ComposeCalculatorTheme {
                 DefaultView()

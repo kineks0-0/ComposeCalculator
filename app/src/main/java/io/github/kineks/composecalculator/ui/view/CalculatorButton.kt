@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.kineks.composecalculator.ui.layout.isHorizontal
 
+//  本质上就是干了数字小键盘的活
 @Composable
 fun CalculatorButton(
     onNumberClick: (text: String) -> Unit,
@@ -92,6 +93,7 @@ fun CalculatorButton(
     }
 }
 
+//  本来是用 LazyRow 实现的，结果发现还是 LazyVerticalGrid 在固定项目列表更好用
 @Composable
 fun RowOperatorButton(
     modifier: Modifier = Modifier,
@@ -108,7 +110,6 @@ fun RowOperatorButton(
     },
     clickable: (text: String) -> Unit
 ) {
-
     Box(
         contentAlignment = if (isHorizontal()) Alignment.TopStart else Alignment.BottomStart,
         modifier = Modifier
@@ -125,6 +126,7 @@ fun RowOperatorButton(
 
 }
 
+// 这里的实现都是判断单字符,按理说应该改成 fun Char.isOperator(): Boolean
 val CalculatorOperatorButton = listOf("AC", "()", "%", "÷", "×", "−", "+", "←", "=")
 val CalculatorNumberButton = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".")
 fun String.isNumber(): Boolean = CalculatorNumberButton.indexOf(this) != -1

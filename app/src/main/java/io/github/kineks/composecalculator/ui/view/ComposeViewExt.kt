@@ -20,6 +20,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.kineks.composecalculator.ui.layout.isHorizontal
 
+
+
+//  数字按钮, 实际代码实现是  OperatorButton()
 @Composable
 fun NumberButton(
     text: String,
@@ -43,6 +46,9 @@ fun NumberButton(
     )
 }
 
+
+
+//  运算符号按钮, 为了能同时显示图标将 Text 给独立出来
 @Suppress("OPT_IN_IS_NOT_ENABLED")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,8 +66,8 @@ fun OperatorButton(
     val modifier =
     if (isHorizontal())
         Modifier
-            .padding(3.dp)
-            .padding(horizontal = 4.dp)
+            .padding(4.dp)
+            .padding(horizontal = 2.dp)
     else
         Modifier
             .padding(5.dp)
@@ -82,7 +88,7 @@ fun OperatorButton(
                 .alpha(1f)
                 .aspectRatio(
                     if (isHorizontal())
-                        ratio + 0.3f
+                        ratio + 0.28f
                     else
                         ratio, true
                 ),
@@ -101,6 +107,15 @@ fun OperatorButton(
 }
 
 
+
+
+
+/**
+ * 显示 Material You 所有颜色列表的‘项目’
+ */
+//  因为不熟悉 Material You 的颜色, 每个系统因为 动态颜色 再加上compose和官网那张图 名称不一致 导致仅供参考
+//  有个坑主要注意的是, tonalElevation 的实现是改“颜色”来分区Z轴 ,所以需注意下颜色选择和主题自配色
+//  好处就是背景和按钮能用同一个颜色 , MY会根据Z轴处理实际可视对比颜色
 @Composable
 fun ColorItem(
     text: String,
@@ -110,7 +125,6 @@ fun ColorItem(
     clickable: () -> Unit = { }
 ) {
     Surface(
-        //hape = MaterialTheme.shapes.medium,
         tonalElevation = tonalElevation,
         color = backgroundColor,
         modifier = Modifier
@@ -118,16 +132,10 @@ fun ColorItem(
             .height(100.dp)
             .padding(0.dp)
             .padding(top = 0.dp, bottom = 0.dp)
-            .clickable {
-                clickable()
-            }
+            .clickable { clickable() }
     ) {
         Box(
-            modifier = Modifier
-                //.fillMaxHeight()
-                .fillMaxWidth().offset(y =(-18).dp)
-            //.aspectRatio(ratio,false)
-            ,
+            modifier = Modifier.fillMaxWidth().offset(y =(-18).dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -145,6 +153,10 @@ fun ColorItem(
     }
 }
 
+
+/**
+ * 显示 Material You 所有颜色项目的‘列表’
+ */
 @Composable
 fun ColorList(clickable: () -> Unit) {
 

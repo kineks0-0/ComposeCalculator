@@ -35,48 +35,53 @@ import io.github.kineks.composecalculator.ui.view.*
 
 @Composable
 fun DefaultView() {
+    // 沉浸状态栏
     val systemUiController = rememberSystemUiController()
     val useDarkIcons = !isSystemInDarkTheme()
     SideEffect {
         systemUiController.setStatusBarColor(Color.Transparent, useDarkIcons)
     }
 
+    // 显示颜色列表
     var colorDisplay by remember {
         mutableStateOf(false)
     }
 
+    // 开始计算
     val startCalculatingEquations: (CalculatorTextFieldState) -> Unit by remember {
-        mutableStateOf({ textFieldState ->
-            textFieldState.apply {
-                try {
-                    if (value.text == getString(R.string.data_error)) {
-                        clearTextField()
-                    } else {
-                        // 如果括号没打完
-                        if (operatorArithmeticBracketsStartCounts != 0) {
-                            while (operatorArithmeticBracketsStartCounts != 0) {
-                                textFieldState.append(")")
-                                operatorArithmeticBracketsStartCounts--
-                            }
-                        }
-                        // 算式显示到 label
-                        label = value.text
-                        // 开始计算
-                        val number = value.text.parse().toString()
-                        setTextField(
-                            number.subZeroAndDot()
-                        )
-                        if (number == "NaN") {
-                            textFieldState.isError()
-                        }
-                    }
-                } catch (e: Exception) {
-                    setTextField(getString(R.string.data_error))
-                    textFieldState.isError()
+        mutableStateOf({ state ->
+            try {
+                // 清空输入框无效数据
+                if (state.value.text == getString(R.string.data_error)) {
+                    state.clearTextField()
+                    return@mutableStateOf
                 }
+                // 如果括号没打完
+                if (operatorArithmeticBracketsStartCounts != 0) {
+                    while (operatorArithmeticBracketsStartCounts != 0) {
+                        state.append(")")
+                        operatorArithmeticBracketsStartCounts--
+                    }
+                }
+                // 将算式显示到输入框 label
+                state.label = state.value.text
+                // 开始计算
+                val number = state.value.text.parse().toString()
+                state.setTextField(number.subZeroAndDot())
+
+                // 如果数据错误标记输入框错误状态
+                if (number == "NaN") {
+                    state.isError()
+                }
+
+            } catch (e: Exception) {
+                state.setTextField(getString(R.string.data_error))
+                state.isError()
             }
+
         })
     }
+    // 输入框 State 管理
     val textFieldState =
         rememberCalculatorTextFieldState(onDone = { startCalculatingEquations(it) })
 
@@ -87,6 +92,7 @@ fun DefaultView() {
             .background(color = MaterialTheme.colorScheme.background)
     ) {
 
+        // 自定义布局，自适应横竖屏
         TheLayout(boxScope = this) {
 
             AnimatedVisibility(visible = colorDisplay) {
@@ -95,6 +101,7 @@ fun DefaultView() {
 
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.BottomEnd) {
 
+                // 输入框背景
                 Surface(color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(
                         bottomStart = if (isHorizontal()) 0.dp else 20.dp,
@@ -110,6 +117,7 @@ fun DefaultView() {
 
                 ) { }
 
+                // 菜单
                 Box(
                     modifier = Modifier.fillMaxHeight(),
                     contentAlignment = Alignment.TopEnd
@@ -117,15 +125,12 @@ fun DefaultView() {
                     var dropdownMenuExpanded by remember {
                         mutableStateOf(false)
                     }
+                    // todo： 玄学 bug ，不在 button 里声明的话菜单可能会飞左下角
                     IconButton(
                         modifier = Modifier
                             .statusBarsPadding()
-                            .size(76.dp).padding(end = 3.dp)
-                            /*.clip(RoundedCornerShape(50.dp))
-                            .clickable {
-                                dropdownMenuExpanded = !dropdownMenuExpanded
-                            }
-                            .padding(25.dp),*/,
+                            .size(76.dp)
+                            .padding(end = 3.dp),
                         onClick = { }
                     ) {
                         Icon(imageVector = Icons.Default.MoreVert,
@@ -143,7 +148,8 @@ fun DefaultView() {
                         DropdownMenu(
                             expanded = dropdownMenuExpanded,
                             onDismissRequest = { dropdownMenuExpanded = false },
-                            modifier = Modifier.padding(end = 4.dp)) {
+                            modifier = Modifier.padding(end = 4.dp)
+                        ) {
 
                             DropdownMenuItem(
                                 text = {
@@ -163,7 +169,7 @@ fun DefaultView() {
                     }
                 }
 
-
+                // 输入框
                 CalculatorTextField(state = textFieldState,
                     modifier = Modifier
                         .zIndex(1f)
@@ -176,6 +182,7 @@ fun DefaultView() {
                         })
 
 
+                // 函数列表
                 RowOperatorButton {
                     textFieldState.checkCursor { index, t, last, OneChar, cursorHide, cursorInsert ->
                         when (it) {
@@ -192,6 +199,7 @@ fun DefaultView() {
 
             }
 
+            // 计算器按钮
             CalculatorButton(
                 onNumberClick = { text: String -> textFieldState.append(text) },
                 onOperatorClick = { text: String ->
