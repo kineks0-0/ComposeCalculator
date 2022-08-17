@@ -9,7 +9,7 @@ import io.github.kineks.composecalculator.data.MathParser
  * 根据光标状态插入文本
  * @return TextFieldValue
  */
-fun TextFieldValue.append(
+fun TextFieldValue.add(
     text: String,
     offset: Int = 0,
     callback: (index: Int, text: String,last: String?, OneChar: Boolean, cursorHide: Boolean, cursorInsert: Boolean) -> Unit = { _, _, _, _, _,_ -> }
@@ -27,15 +27,15 @@ fun TextFieldValue.append(
         (selection.max == 0) -> {
             (this.text + text).apply {
                 index = length
-                callback(index, this@append.text, this@append.text.lastOrNull()?.toString(),text.length == 1,true,false)
+                callback(index, this@add.text, this@add.text.lastOrNull()?.toString(),text.length == 1,true,false)
             }
         }
         //  光标插入
         selection.collapsed -> {
             StringBuilder(this.text).insert(selection.max, text).apply {
                 index = selection.max + text.length
-                callback(index, this@append.text,
-                    this@append.text[selection.max-1].toString(),text.length == 1,false,true)
+                callback(index, this@add.text,
+                    this@add.text[selection.max-1].toString(),text.length == 1,false,true)
             }
         }
         //  选中多个

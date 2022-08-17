@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import io.github.kineks.composecalculator.ui.layout.isHorizontal
 
 //  本质上就是干了数字小键盘的活
+//  注意：OperatorButton 的组件本身对横屏和竖屏的下 Padding 参数 和 宽高比 差异化
+//  这样竖屏下按钮接近圆形，而横屏则是椭圆。 同时间距也自响应
 @Composable
 fun CalculatorButton(
     onNumberClick: (text: String) -> Unit,
@@ -129,13 +131,21 @@ fun RowOperatorButton(
 // 这里的实现都是判断单字符,按理说应该改成 fun Char.isOperator(): Boolean
 val CalculatorOperatorButton = listOf("AC", "()", "%", "÷", "×", "−", "+", "←", "=")
 val CalculatorNumberButton = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".")
-fun String.isNumber(): Boolean = CalculatorNumberButton.indexOf(this) != -1
-fun String.isOperator(): Boolean = CalculatorOperatorButton.indexOf(this) != -1
-fun String.isOperatorAC(): Boolean = "AC" == this
-fun String.isOperatorBackSpace(): Boolean = "←" == this
-fun String.isOperatorBracketStart(): Boolean = "(" == this
-fun String.isOperatorBracketEnd(): Boolean = ")" == this
-fun String.isOperatorBrackets(): Boolean = "()" == this || isOperatorBracketStart() || isOperatorBracketEnd()
+fun String?.isNumber(): Boolean = CalculatorNumberButton.indexOf(this) != -1
+fun String?.isOperator(): Boolean = CalculatorOperatorButton.indexOf(this) != -1
+fun String?.isOperatorMIN(): Boolean = "−" == this
+fun String?.isOperatorAC(): Boolean = "AC" == this
+fun String?.isOperatorBackSpace(): Boolean = "←" == this
+fun String?.isOperatorBracketStart(): Boolean = "(" == this
+fun String?.isOperatorBracketEnd(): Boolean = ")" == this
+fun String?.isOperatorBrackets(): Boolean = "()" == this || isOperatorBracketStart() || isOperatorBracketEnd()
+fun String.lastSecondChar(index: Int = lastIndex-1): Char? =
+    when(length) {
+        0 -> null
+        1 -> null
+        else -> get(index)
+    }
+fun String.lastSecondOrNull(index: Int = lastIndex-1): String? = lastSecondChar(index)?.toString()
 
 // 标记左括号的计数值,
 var operatorArithmeticBracketsStartCounts by mutableStateOf(0)

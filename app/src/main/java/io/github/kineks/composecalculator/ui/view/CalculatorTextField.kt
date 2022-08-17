@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import io.github.kineks.composecalculator.append
+import io.github.kineks.composecalculator.add
 
 class CalculatorTextFieldState(
     private var _textFieldValue: MutableState<TextFieldValue>,
@@ -54,7 +54,30 @@ class CalculatorTextFieldState(
         isError.value = false
     }
 
-    fun append(
+    fun deleteCursorInsertAdd(
+        text: String, index: () -> Int =
+            {
+                var i = 0
+                checkCursor { index, _, _, _, cursorHide, cursorInsert ->
+                    i = index
+                }
+                i
+            }
+    ) {
+        val where = index()
+        value = TextFieldValue(
+            StringBuilder(value.text).deleteCharAt(where - 1).insert(where - 1, text).toString(),
+            selection = TextRange(where)
+        )
+    }
+
+    fun deleteLastAdd(text: String) {
+        add(
+            value.text.substring(0, value.text.lastIndex) + text
+        )
+    }
+
+    fun add(
         text: String,
         offset: Int = 0,
         callback: (index: Int, text: String, last: String?, OneChar: Boolean, cursorHide: Boolean, cursorInsert: Boolean) -> Unit = { _, _, _, _, _, _ -> }
@@ -62,18 +85,20 @@ class CalculatorTextFieldState(
         label = ""
         isNoError()
         if (value.text == "0") {
-            if (text.isNumber()) setTextField("")
+            if (text.isNumber() && text != ".") setTextField("")
             if (text.lastOrNull() == '(') setTextField("")
             if (text.lastOrNull() == ')') setTextField("")
+            if (text.lastOrNull() == 'e') setTextField("")
+            if (text.lastOrNull() == 'i') setTextField("")
         }
-        _textFieldValue.value = _textFieldValue.value.append(text, offset, callback)
+        _textFieldValue.value = _textFieldValue.value.add(text, offset, callback)
     }
 
     fun checkCursor(
         offset: Int = 0,
         callback: (index: Int, text: String, last: String?, OneChar: Boolean, cursorHide: Boolean, cursorInsert: Boolean) -> Unit = { _, _, _, _, _, _ -> }
     ) {
-        _textFieldValue.value.append("", offset, callback)
+        _textFieldValue.value.add("", offset, callback)
     }
 
     fun deleteTextField() {
@@ -81,7 +106,8 @@ class CalculatorTextFieldState(
             0 -> {}
             1 -> {
                 clearTextField()
-                value = value.copy(selection = TextRange(0))
+                setTextField("")
+                //value = value.copy(selection = TextRange(0))
             }
             else -> {
                 checkCursor { index, _, _, _, _, _ ->

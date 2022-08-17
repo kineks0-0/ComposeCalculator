@@ -1,5 +1,6 @@
 package io.github.kineks.composecalculator.ui
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,8 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -59,7 +58,7 @@ fun DefaultView() {
                 // 如果括号没打完
                 if (operatorArithmeticBracketsStartCounts != 0) {
                     while (operatorArithmeticBracketsStartCounts != 0) {
-                        state.append(")")
+                        state.add(")")
                         operatorArithmeticBracketsStartCounts--
                     }
                 }
@@ -77,6 +76,7 @@ fun DefaultView() {
             } catch (e: Exception) {
                 state.setTextField(getString(R.string.data_error))
                 state.isError()
+                Log.e("DefaultView",e.message,e)
             }
 
         })
@@ -187,11 +187,11 @@ fun DefaultView() {
                     textFieldState.checkCursor { index, t, last, OneChar, cursorHide, cursorInsert ->
                         when (it) {
                             "sin", "abs" -> {
-                                textFieldState.append("$it(")
+                                textFieldState.add("$it(")
                                 operatorArithmeticBracketsStartCounts++
                             }
                             else -> {
-                                textFieldState.append(it)
+                                textFieldState.add(it)
                             }
                         }
                     }
@@ -201,7 +201,7 @@ fun DefaultView() {
 
             // 计算器按钮
             CalculatorButton(
-                onNumberClick = { text: String -> textFieldState.append(text) },
+                onNumberClick = { text: String -> textFieldState.add(text) },
                 onOperatorClick = { text: String ->
                     when (true) {
                         // 复位
@@ -221,10 +221,10 @@ fun DefaultView() {
                                     else -> true
                                 }
                                 if (isStart) {
-                                    textFieldState.append("(")
+                                    textFieldState.add("(")
                                     operatorArithmeticBracketsStartCounts++
                                 } else {
-                                    textFieldState.append(")")
+                                    textFieldState.add(")")
                                     operatorArithmeticBracketsStartCounts--
                                 }
                             }
@@ -232,18 +232,23 @@ fun DefaultView() {
                         // 其他符号
                         text.isOperator() -> {
                             textFieldState.checkCursor { index, t, last, OneChar, cursorHide, cursorInsert ->
-                                when (true) {
-                                    (cursorHide && last?.isOperator() == true) -> textFieldState.append(
-                                        t.substring(0, t.lastIndex) + text
-                                    )
-                                    (cursorInsert && last?.isOperator() == true) -> {
-                                        textFieldState.value = TextFieldValue(
-                                            StringBuilder(t).deleteCharAt(index - 1)
-                                                .insert(index - 1, text).toString(),
-                                            selection = TextRange(index)
-                                        )
+                                val add: (String,Boolean) -> Unit = { value, delete ->
+                                    when (true) {
+                                        cursorHide -> if (delete) textFieldState.deleteLastAdd(value) else textFieldState.add(value)
+                                        cursorInsert -> if (delete) textFieldState.deleteCursorInsertAdd(value) else textFieldState.add(value)
+                                        else -> textFieldState.add(text)
                                     }
-                                    else -> textFieldState.append(text)
+                                }
+                                when (true) {
+                                    (text.isOperatorMIN() && last.isOperatorMIN()) -> {
+                                        if (t.lastSecondOrNull(index-2).isOperatorMIN())
+                                            add(text, true)
+                                        else
+                                            add(text, false)
+                                    }
+
+                                    last.isOperator() -> add(text,true)
+                                    else -> add(text,false)
                                 }
                             }
                         }

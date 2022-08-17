@@ -1,5 +1,7 @@
 package io.github.kineks.composecalculator.ui.view
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -12,14 +14,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.kineks.composecalculator.ui.layout.isHorizontal
-
+import io.github.kineks.composecalculator.ui.layout.isNotHorizontal
 
 
 //  数字按钮, 实际代码实现是  OperatorButton()
@@ -50,7 +51,8 @@ fun NumberButton(
 
 //  运算符号按钮, 为了能同时显示图标将 Text 给独立出来
 @Suppress("OPT_IN_IS_NOT_ENABLED")
-@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("ModifierParameter")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun OperatorButton(
     text: String,
@@ -60,19 +62,15 @@ fun OperatorButton(
     alpha: Float = 0.9f,
     tonalElevation: Dp = 0.dp,
     shadowElevation: Dp = 1.dp,
+    modifier: Modifier =
+            Modifier.isHorizontal {
+                padding(4.dp).padding(horizontal = 2.dp)
+            }.isNotHorizontal {
+                padding(5.dp).padding(vertical = 1.dp)
+            },
     content: @Composable (BoxScope.() -> Unit)? = null,
     clickable: (text: String) -> Unit
 ) {
-    val modifier =
-    if (isHorizontal())
-        Modifier
-            .padding(4.dp)
-            .padding(horizontal = 2.dp)
-    else
-        Modifier
-            .padding(5.dp)
-            .padding(vertical = 1.dp)
-
 
     Surface(
         shape = RoundedCornerShape(50),
@@ -85,7 +83,6 @@ fun OperatorButton(
     ) {
         Box(
             modifier = Modifier
-                .alpha(1f)
                 .aspectRatio(
                     if (isHorizontal())
                         ratio + 0.28f

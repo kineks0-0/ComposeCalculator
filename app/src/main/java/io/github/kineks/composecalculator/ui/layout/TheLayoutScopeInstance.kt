@@ -18,7 +18,7 @@ import androidx.compose.ui.layout.VerticalAlignmentLine
 @LayoutScopeMarker
 @Immutable
 class TheLayoutScopeInstance(
-    private val columnScope: ColumnScope?, private val rowScope: RowScope?
+    var columnScope: ColumnScope?, var rowScope: RowScope?
 ) : TheLayoutScope {
 
     override fun Modifier.align(alignment: Alignment.Horizontal): Modifier {

@@ -5,6 +5,7 @@ import kotlin.math.abs
 import kotlin.math.sin
 
 //  虽然自己试过实现一个, 但轮子没必要每个都重新造嘛
+// 更改： 加了 % 求余
 /**
  * 代码来自 https://gist.github.com/ichenhe/a438769a2c40947d2d3717541e21e007
  */
@@ -25,6 +26,7 @@ class MathParser {
         private const val OP_MUL: Short = 3 // *
         private const val OP_DIV: Short = 4 // /
         private const val OP_N: Short = 5   // ~ (负号)
+        private const val OP_REM: Short = 6 // % (求余/mod)
 
         // ----------------以上 OP 的编号必须与 priority 数组下标一致
         private const val OP_FUN_ABS: Short = 10   // abs
@@ -42,13 +44,14 @@ class MathParser {
      * 下标与 `OP_*` 常量一致。
      */
     private val priority = arrayOf(
-        //               (      +     -      *     /    ~
-        booleanArrayOf(false, true, true, true, true, true),     // (
-        booleanArrayOf(false, false, false, true, true, true),   // +
-        booleanArrayOf(false, false, false, true, true, true),   // -
-        booleanArrayOf(false, false, false, false, false, true), // *
-        booleanArrayOf(false, false, false, false, false, true), // /
-        booleanArrayOf(false, false, false, false, false, true), // ~ (负号)
+        //               (         +         -         *          /          ~          %
+        booleanArrayOf(false, /**/true, /**/true, /**/true,  /**/true,  /**/true,  /**/true), // (
+        booleanArrayOf(false,    false,    false, /**/true,  /**/true,  /**/true,  /**/true), // +
+        booleanArrayOf(false,    false,    false, /**/true,  /**/true,  /**/true,  /**/true), // -
+        booleanArrayOf(false,    false,    false,     false,     false, /**/true,     false), // *
+        booleanArrayOf(false,    false,    false,     false,     false, /**/true,     false), // /
+        booleanArrayOf(false,    false,    false,     false,     false, /**/true,     false), // ~ (负号)
+        booleanArrayOf(false,    false,    false,     false,     false, /**/true,     false), // %
     )
 
     private val numStack = Stack<Double>()
@@ -188,12 +191,12 @@ class MathParser {
             }
             var c1 = c
             if (c == '-') {
-                if (preToken == TOKEN_NUM)
-                    c1 = '-'
+                c1 = if (preToken == TOKEN_NUM)
+                    '-'
                 else if (preToken == TOKEN_LP || preToken == TOKEN_OP || preToken == TOKEN_SP)
-                    c1 = '~'
+                    '~'
                 else if (preToken == TOKEN_RP)
-                    c1 = if (numStack.isEmpty()) '~' else '-'
+                    if (numStack.isEmpty()) '~' else '-'
                 else
                     throw ParseException("Wrong '-' position.")
             }
@@ -247,6 +250,10 @@ class MathParser {
                 val t = numStack.pop()
                 numStack.push(numStack.pop() / t)
             }
+            OP_REM -> {
+                val t = numStack.pop()
+                numStack.push(numStack.pop() % t)
+            }
             OP_N -> {
                 numStack.push(-1 * numStack.pop())
             }
@@ -257,7 +264,7 @@ class MathParser {
     }
 
     /** 判断是否是运算符，包括括号()不包括点.。*/
-    private fun isOp(c: Char): Boolean = c == '(' || c == ')' || c == '+' || c == '-' || c == '*' || c == '/'
+    private fun isOp(c: Char): Boolean = c == '(' || c == ')' || c == '+' || c == '-' || c == '*' || c == '/' || c == '%'
 
     /** 将操作符转为数字以便高效存入[opStack]。 */
     private fun op2d(c: Char): Short = when (c) {
@@ -267,6 +274,7 @@ class MathParser {
         '*' -> OP_MUL
         '/' -> OP_DIV
         '~' -> OP_N
+        '%' -> OP_REM
         else -> throw IllegalArgumentException("$c is not an operator")
     }
 
