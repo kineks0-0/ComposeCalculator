@@ -33,7 +33,7 @@ fun NumberButton(
     alpha: Float = 1f,
     tonalElevation: Dp = 1.dp,
     content: @Composable (BoxScope.() -> Unit)? = null,
-    clickable: (text: String) -> Unit
+    clickable: String.(text: String) -> Unit
 ) {
     OperatorButton(
         text = text,
@@ -69,12 +69,12 @@ fun OperatorButton(
                 padding(5.dp).padding(vertical = 1.dp)
             },
     content: @Composable (BoxScope.() -> Unit)? = null,
-    clickable: (text: String) -> Unit
+    clickable: String.(text: String) -> Unit
 ) {
 
     Surface(
         shape = RoundedCornerShape(50),
-        onClick = { clickable(text) },
+        onClick = { text.apply { clickable(text) } },
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
         //contentColor = backgroundColor,

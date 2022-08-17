@@ -25,8 +25,8 @@ import io.github.kineks.composecalculator.ui.layout.isHorizontal
 //  这样竖屏下按钮接近圆形，而横屏则是椭圆。 同时间距也自响应
 @Composable
 fun CalculatorButton(
-    onNumberClick: (text: String) -> Unit,
-    onOperatorClick: (text: String) -> Unit,
+    onNumberClick: String.(text: String) -> Unit,
+    onOperatorClick: String.(text: String) -> Unit,
     startCalculatingEquations: () -> Unit,
     modifier: Modifier = Modifier
 ) {

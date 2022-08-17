@@ -14,19 +14,19 @@ class MathParser {
         private const val ZERO_CODE = '0'.code // 便于通过字符串编码快速 char -> int
 
         private const val TOKEN_NULL: Short = -1
-        private const val TOKEN_NUM: Short = 1
-        private const val TOKEN_LP: Short = 2
-        private const val TOKEN_RP: Short = 3
-        private const val TOKEN_OP: Short = 4 // 操作符，包括函数操作符
-        private const val TOKEN_SP: Short = 4 // 函数分隔符
+        private const val TOKEN_NUM:  Short = 1
+        private const val TOKEN_LP:   Short = 2
+        private const val TOKEN_RP:   Short = 3
+        private const val TOKEN_OP:   Short = 4 // 操作符，包括函数操作符
+        private const val TOKEN_SP:   Short = 4 // 函数分隔符
 
-        private const val OP_LP: Short = 0  // (
+        private const val OP_LP:  Short = 0 // (
         private const val OP_ADD: Short = 1 // +
         private const val OP_MIN: Short = 2 // -
         private const val OP_MUL: Short = 3 // *
         private const val OP_DIV: Short = 4 // /
-        private const val OP_N: Short = 5   // ~ (负号)
-        private const val OP_REM: Short = 6 // % (求余/mod)
+        private const val OP_N:   Short = 5 // ~ (负号)
+        private const val OP_PER: Short = 6 // % (百分比/除以100)
 
         // ----------------以上 OP 的编号必须与 priority 数组下标一致
         private const val OP_FUN_ABS: Short = 10   // abs
@@ -48,10 +48,10 @@ class MathParser {
         booleanArrayOf(false, /**/true, /**/true, /**/true,  /**/true,  /**/true,  /**/true), // (
         booleanArrayOf(false,    false,    false, /**/true,  /**/true,  /**/true,  /**/true), // +
         booleanArrayOf(false,    false,    false, /**/true,  /**/true,  /**/true,  /**/true), // -
-        booleanArrayOf(false,    false,    false,     false,     false, /**/true,     false), // *
-        booleanArrayOf(false,    false,    false,     false,     false, /**/true,     false), // /
+        booleanArrayOf(false,    false,    false,     false,     false, /**/true,  /**/true), // *
+        booleanArrayOf(false,    false,    false,     false,     false, /**/true,  /**/true), // /
         booleanArrayOf(false,    false,    false,     false,     false, /**/true,     false), // ~ (负号)
-        booleanArrayOf(false,    false,    false,     false,     false, /**/true,     false), // %
+        booleanArrayOf(false,    false,    false,     false,     false, /**/true,  /**/true), // %
     )
 
     private val numStack = Stack<Double>()
@@ -250,9 +250,8 @@ class MathParser {
                 val t = numStack.pop()
                 numStack.push(numStack.pop() / t)
             }
-            OP_REM -> {
-                val t = numStack.pop()
-                numStack.push(numStack.pop() % t)
+            OP_PER -> {
+                numStack.push(numStack.pop() / 100)
             }
             OP_N -> {
                 numStack.push(-1 * numStack.pop())
@@ -274,7 +273,7 @@ class MathParser {
         '*' -> OP_MUL
         '/' -> OP_DIV
         '~' -> OP_N
-        '%' -> OP_REM
+        '%' -> OP_PER
         else -> throw IllegalArgumentException("$c is not an operator")
     }
 

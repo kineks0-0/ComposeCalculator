@@ -205,32 +205,30 @@ fun DefaultView() {
                 onOperatorClick = { text: String ->
                     when (true) {
                         // 复位
-                        text.isOperatorAC() -> {
+                        isOperatorAC() -> {
                             textFieldState.clearTextField()
                         }
                         // 删除键
-                        text.isOperatorBackSpace() -> {
+                        isOperatorBackSpace() -> {
                             textFieldState.deleteTextField()
                         }
                         // 括号
-                        text.isOperatorBrackets() -> {
+                        isOperatorBrackets() -> {
                             textFieldState.checkCursor { _, _, last, _, _, _ ->
-                                val isStart = when (true) {
-                                    (last == null) -> true
-                                    (operatorArithmeticBracketsStartCounts != 0 && !last.isOperatorBracketStart()) -> false
-                                    else -> true
-                                }
-                                if (isStart) {
-                                    textFieldState.add("(")
-                                    operatorArithmeticBracketsStartCounts++
-                                } else {
-                                    textFieldState.add(")")
-                                    operatorArithmeticBracketsStartCounts--
+                                when (true) {
+                                    (operatorArithmeticBracketsStartCounts != 0 && !last.isOperatorBracketStart()) -> {
+                                        textFieldState.add(")")
+                                        operatorArithmeticBracketsStartCounts--
+                                    }
+                                    else -> {
+                                        textFieldState.add("(")
+                                        operatorArithmeticBracketsStartCounts++
+                                    }
                                 }
                             }
                         }
                         // 其他符号
-                        text.isOperator() -> {
+                        isOperator() -> {
                             textFieldState.checkCursor { index, t, last, OneChar, cursorHide, cursorInsert ->
                                 val add: (String,Boolean) -> Unit = { value, delete ->
                                     when (true) {
@@ -240,13 +238,16 @@ fun DefaultView() {
                                     }
                                 }
                                 when (true) {
-                                    (text.isOperatorMIN() && last.isOperatorMIN()) -> {
+                                    (isOperatorMIN() && last.isOperatorMIN()) -> {
                                         if (t.lastSecondOrNull(index-2).isOperatorMIN())
                                             add(text, true)
                                         else
                                             add(text, false)
                                     }
-
+                                    (last.isOperatorMIN() && t.lastSecondOrNull(index-2).isOperatorMIN()) -> {
+                                        add("",true)
+                                        add(text,true)
+                                    }
                                     last.isOperator() -> add(text,true)
                                     else -> add(text,false)
                                 }
