@@ -186,7 +186,11 @@ fun DefaultView() {
 
 
             // 函数列表
-            RowOperatorButton {
+            RowOperatorButton(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .isHorizontal { padding(start = 2.dp, top = 31.dp).statusBarsPadding() }
+            ) {
                 when (it) {
                     "sin", "abs" -> {
                         state.add("$it(")
@@ -206,15 +210,15 @@ fun DefaultView() {
             onOperatorClick = { onClick(this, state) },
             startCalculatingEquations = { startCalculatingEquations(state) },
             modifier = Modifier
+                .fillMaxSize()
                 .isHorizontal {
                     weight(1.0f)
                         .statusBarsPadding()
-                        .padding(horizontal = 25.dp)
-                        .padding(top = 7.dp, bottom = 6.dp, start = 2.dp)
+                        .padding(16.dp)
                 }
                 .isNotHorizontal {
                     weight(1.1f)
-                        .padding(10.dp)
+                        .padding(vertical = 16.dp, horizontal = 14.dp)
                 }
         )
 
@@ -279,7 +283,6 @@ val onClick: String.(String, CalculatorTextFieldState) -> Unit = { text, state -
     }
 
 }
-
 
 
 @Preview(showBackground = true)

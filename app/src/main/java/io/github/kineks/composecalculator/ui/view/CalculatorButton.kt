@@ -29,44 +29,48 @@ fun CalculatorButton(
     onNumberClick: String.(text: String) -> Unit,
     onOperatorClick: String.(text: String) -> Unit,
     startCalculatingEquations: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    rowModifier: ColumnScope.() -> Modifier = {
+        Modifier
+            .fillMaxWidth()
+            .weight(1f)
+    }
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(4),
-        modifier = modifier,
-        verticalArrangement = Arrangement.Bottom,
-        userScrollEnabled = false
-    ) {
-
-        item {
+    Column(modifier = modifier) {
+        Row(modifier = rowModifier()) {
             OperatorButton(
                 text = "AC",
                 color = MaterialTheme.colorScheme.onTertiary,
                 backgroundColor = MaterialTheme.colorScheme.tertiary,
                 tonalElevation = 40.dp,
-                clickable = onOperatorClick
+                clickable = onOperatorClick,
+                modifier = Modifier.weight(1f)
             )
+            OperatorButton(text = "( )", modifier = Modifier.weight(1f)) {
+                "()".apply { onOperatorClick("()") }
+            }
+            OperatorButton(text = "%", modifier = Modifier.weight(1f), clickable = onOperatorClick)
+            OperatorButton(text = "÷", modifier = Modifier.weight(1f), clickable = onOperatorClick)
         }
-        item { OperatorButton(text = "( )") { "()".apply { onOperatorClick("()") } } }
-        item { OperatorButton(text = "%", clickable = onOperatorClick) }
-        item { OperatorButton(text = "÷", clickable = onOperatorClick) }
-
-        item { NumberButton(text = "7", clickable = onNumberClick) }
-        item { NumberButton(text = "8", clickable = onNumberClick) }
-        item { NumberButton(text = "9", clickable = onNumberClick) }
-        item { OperatorButton(text = "×", clickable = onOperatorClick) }
-
-        item { NumberButton(text = "4", clickable = onNumberClick) }
-        item { NumberButton(text = "5", clickable = onNumberClick) }
-        item { NumberButton(text = "6", clickable = onNumberClick) }
-        item { OperatorButton(text = "−", clickable = onOperatorClick) }
-
-        item { NumberButton(text = "1", clickable = onNumberClick) }
-        item { NumberButton(text = "2", clickable = onNumberClick) }
-        item { NumberButton(text = "3", clickable = onNumberClick) }
-        item { OperatorButton(text = "+", clickable = onOperatorClick) }
-
-        item {
+        Row(modifier = rowModifier()) {
+            NumberButton(text = "7", modifier = Modifier.weight(1f), clickable = onNumberClick)
+            NumberButton(text = "8", modifier = Modifier.weight(1f), clickable = onNumberClick)
+            NumberButton(text = "9", modifier = Modifier.weight(1f), clickable = onNumberClick)
+            OperatorButton(text = "×", modifier = Modifier.weight(1f), clickable = onOperatorClick)
+        }
+        Row(modifier = rowModifier()) {
+            NumberButton(text = "4", modifier = Modifier.weight(1f), clickable = onNumberClick)
+            NumberButton(text = "5", modifier = Modifier.weight(1f), clickable = onNumberClick)
+            NumberButton(text = "6", modifier = Modifier.weight(1f), clickable = onNumberClick)
+            OperatorButton(text = "−", modifier = Modifier.weight(1f), clickable = onOperatorClick)
+        }
+        Row(modifier = rowModifier()) {
+            NumberButton(text = "1", modifier = Modifier.weight(1f), clickable = onNumberClick)
+            NumberButton(text = "2", modifier = Modifier.weight(1f), clickable = onNumberClick)
+            NumberButton(text = "3", modifier = Modifier.weight(1f), clickable = onNumberClick)
+            OperatorButton(text = "+", modifier = Modifier.weight(1f), clickable = onOperatorClick)
+        }
+        Row(modifier = rowModifier()) {
             NumberButton(
                 text = "←",
                 content = {
@@ -75,25 +79,31 @@ fun CalculatorButton(
                         contentDescription = "Backspace"
                     )
                 },
+                modifier = Modifier.weight(1f),
                 clickable = onOperatorClick
             )
-        }
-        item { NumberButton(text = "0", clickable = onNumberClick) }
-        item {
-            NumberButton(text = "•", clickable = { ".".apply { onNumberClick(".") } })
-        }
-        item {
+            NumberButton(text = "0", modifier = Modifier.weight(1f), clickable = onNumberClick)
+            NumberButton(text = "•", modifier = Modifier.weight(1f), clickable = {
+                ".".apply { onNumberClick(".") }
+            })
             OperatorButton(
                 text = "=",
                 color = MaterialTheme.colorScheme.secondaryContainer,
                 backgroundColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 alpha = 0.95f,
-                tonalElevation = 0.dp
+                tonalElevation = 0.dp,
+                modifier = Modifier.weight(1f)
             ) {
                 startCalculatingEquations()
             }
+
         }
     }
+
+
+
+
+
 }
 
 //  本来是用 LazyRow 实现的，结果发现还是 LazyVerticalGrid 在固定项目列表更好用
@@ -106,7 +116,7 @@ fun RowOperatorButton(
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineLarge,
-            modifier = modifier
+            modifier = Modifier
                 .rotate(1f)
                 .clickable { clickable(it) }
         )
@@ -114,10 +124,8 @@ fun RowOperatorButton(
     clickable: (text: String) -> Unit
 ) {
     Box(
-        contentAlignment = if (isHorizontal()) Alignment.TopStart else Alignment.BottomStart,
-        modifier = Modifier
-            .fillMaxSize()
-            .isHorizontal { padding(start = 2.dp, top = 18.dp).statusBarsPadding() }
+        contentAlignment = if (isHorizontal()) Alignment.TopStart else Alignment.BottomCenter,
+        modifier = modifier
     ) {
         LazyVerticalGrid(columns = GridCells.Fixed(4)) {
             item { rowOperatorButton("sin") }

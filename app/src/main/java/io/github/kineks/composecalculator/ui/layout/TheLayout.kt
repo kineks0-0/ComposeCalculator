@@ -78,8 +78,10 @@ fun TheLayout(
 fun TheLayoutPreview() {
 
     ComposeCalculatorTheme {
-        // 自定义布局，自适应横竖屏
+        //  自定义布局，自适应横竖屏
         TheLayout(modifier = Modifier.fillMaxSize()) {
+
+            //  在横竖屏下不变的组件
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -89,6 +91,7 @@ fun TheLayoutPreview() {
                 Text(text = "Column1")
             }
 
+            //  根据屏幕方向切换不同内容的组件
             Row(
                 modifier = Modifier
                     .weight(1f)
@@ -105,6 +108,7 @@ fun TheLayoutPreview() {
                 }
             }
 
+            //  仅根据屏幕方向对布局配置做差异化的组件
             Column(
                 modifier = Modifier
                     .isHorizontal {
@@ -116,10 +120,12 @@ fun TheLayoutPreview() {
                     .fillMaxSize()
                     .background(Color.White)
             ) {
+                //  不在横屏透明度就会变 0.1 的组件
                 Text(
                     text = "Only Horizontal",
                     modifier = Modifier.isNotHorizontal { alpha(0.1f) })
             }
+
         }
     }
 

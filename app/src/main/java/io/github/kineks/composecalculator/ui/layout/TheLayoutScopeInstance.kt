@@ -21,6 +21,7 @@ class TheLayoutScopeInstance(
     var columnScope: ColumnScope?, var rowScope: RowScope?
 ) : TheLayoutScope {
 
+    @Stable
     override fun Modifier.align(alignment: Alignment.Horizontal): Modifier {
         columnScope?.apply {
             return this@align.align(alignment)
@@ -28,6 +29,7 @@ class TheLayoutScopeInstance(
         return this
     }
 
+    @Stable
     override fun Modifier.align(alignment: Alignment.Vertical): Modifier {
         rowScope?.apply {
             return this@align.align(alignment)
@@ -35,6 +37,7 @@ class TheLayoutScopeInstance(
         return this
     }
 
+    @Stable
     override fun Modifier.alignBy(
         alignmentLineBlock: (Measured) -> Int
     ): Modifier {
@@ -47,6 +50,7 @@ class TheLayoutScopeInstance(
         return this
     }
 
+    @Stable
     override fun Modifier.alignBy(alignmentLine: HorizontalAlignmentLine): Modifier {
         rowScope?.apply {
             return this@alignBy.alignBy(alignmentLine)
@@ -54,6 +58,7 @@ class TheLayoutScopeInstance(
         return this
     }
 
+    @Stable
     override fun Modifier.alignByBaseline(): Modifier {
         rowScope?.apply {
             return this@alignByBaseline.alignByBaseline()
@@ -61,6 +66,7 @@ class TheLayoutScopeInstance(
         return this
     }
 
+    @Stable
     override fun Modifier.alignBy(alignmentLine: VerticalAlignmentLine): Modifier {
         columnScope?.apply {
             return this@alignBy.alignBy(alignmentLine)
