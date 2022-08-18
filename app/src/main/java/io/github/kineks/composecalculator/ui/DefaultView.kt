@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -81,9 +83,18 @@ fun DefaultView() {
 
         })
     }
+    val interactionSource: MutableInteractionSource by remember {
+        mutableStateOf(MutableInteractionSource())
+    }
+    val textFieldPressed = interactionSource.collectIsPressedAsState()
+
     // 输入框 State 管理
     val state =
-        rememberCalculatorTextFieldState(onDone = { startCalculatingEquations(it) })
+        rememberCalculatorTextFieldState(
+            onDone = { startCalculatingEquations(it) },
+            interactionSource = interactionSource,
+            cursorHide = { textFieldPressed.value }
+        )
 
 
     // 自定义布局，自适应横竖屏
@@ -256,7 +267,8 @@ fun DefaultView() {
                         .statusBarsPadding()
                 }
                 .isNotHorizontal {
-                    padding(10.dp)
+                    weight(1.05f)
+                        .padding(10.dp)
                 })
 
 

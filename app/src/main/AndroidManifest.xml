@@ -16,7 +16,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
+            android:resizeableActivity="true"
             android:theme="@style/Theme.ComposeCalculator">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

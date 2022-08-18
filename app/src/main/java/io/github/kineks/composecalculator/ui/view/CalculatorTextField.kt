@@ -25,18 +25,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
-import io.github.kineks.composecalculator.add
-import io.github.kineks.composecalculator.cursorInsert
-import io.github.kineks.composecalculator.cursorSelection
-import io.github.kineks.composecalculator.cursorWhere
+import io.github.kineks.composecalculator.*
 
 class CalculatorTextFieldState(
     private var _textFieldValue: MutableState<TextFieldValue>,
     private var _textFieldLabel: MutableState<String>,
     val isError: MutableState<Boolean>,
+    val interactionSource: MutableInteractionSource,
     val cursorEnabled: CalculatorTextFieldState.() -> Boolean,
-    val onDone: (KeyboardActionScope.(CalculatorTextFieldState) -> Unit),
-    val interactionSource: MutableInteractionSource = MutableInteractionSource()
+    val cursorHide: CalculatorTextFieldState.() -> Boolean,
+    val onDone: (KeyboardActionScope.(CalculatorTextFieldState) -> Unit)
 ) {
 
     var value: TextFieldValue
@@ -49,13 +47,13 @@ class CalculatorTextFieldState(
     val last: String? get() = when(true) {
         value.text.isEmpty() -> null
         (value.text.length == 1) -> value.text
-        else -> value.text[value.cursorWhere-1].toString()
+        else -> value.text[value.cursorWhere(cursorHide())-1].toString()
     }
     val lastSecond: String? get() {
         return if (value.text.length == 1)
             null
         else
-            value.text[value.cursorWhere-2].toString()
+            value.text[value.cursorWhere(cursorHide())-2].toString()
     }
 
 
@@ -77,7 +75,7 @@ class CalculatorTextFieldState(
         add(text)
     }
 
-    fun add(text: String, offset: Int = 0) {
+    fun add(text: String, offset: Int = 0, cursorHide: Boolean = cursorHide()) {
         restState()
         if (value.text == "0") {
             if (text.isNumber() && text != ".") setTextField("")
@@ -86,7 +84,7 @@ class CalculatorTextFieldState(
             if (text.lastOrNull() == 'e') setTextField("")
             if (text.lastOrNull() == 'i') setTextField("")
         }
-        value = value.add(text, offset)
+        value = value.add(text, offset, cursorHide)
     }
 
     fun deleteLast() {
@@ -97,7 +95,7 @@ class CalculatorTextFieldState(
                 if (value.cursorInsert)
                     setTextField(
                         value.text.substring(0, value.text.lastIndex),
-                        TextRange(value.cursorWhere)
+                        TextRange(value.cursorWhere(cursorHide()))
                     )
                 if (value.cursorSelection)
                     setTextField(
@@ -133,7 +131,9 @@ fun rememberCalculatorTextFieldState(
     textFieldValue: TextFieldValue = TextFieldValue("0"),
     textFieldLabel: String = "",
     isError: Boolean = false,
+    interactionSource: MutableInteractionSource = MutableInteractionSource(),
     cursorEnabled: CalculatorTextFieldState.() -> Boolean = { value.text.isNotEmpty() },
+    cursorHide: CalculatorTextFieldState.() -> Boolean = { value.cursorHide },
     onDone: (KeyboardActionScope.(CalculatorTextFieldState) -> Unit) = { }
 ) = rememberSaveable(saver = Saver(save = {
     arrayOf(it.value.text, it.label, it.isError.value.toString())
@@ -142,7 +142,9 @@ fun rememberCalculatorTextFieldState(
         mutableStateOf(TextFieldValue(it[0])),
         mutableStateOf(it[1]),
         mutableStateOf(it[2].toBooleanStrict()),
+        interactionSource,
         cursorEnabled,
+        cursorHide,
         onDone
     )
 })) {
@@ -150,7 +152,9 @@ fun rememberCalculatorTextFieldState(
         mutableStateOf(textFieldValue),
         mutableStateOf(textFieldLabel),
         mutableStateOf(isError),
+        interactionSource,
         cursorEnabled,
+        cursorHide,
         onDone
     )
 }
