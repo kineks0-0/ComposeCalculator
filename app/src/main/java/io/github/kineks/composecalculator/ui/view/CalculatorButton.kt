@@ -46,7 +46,7 @@ fun CalculatorButton(
                 clickable = onOperatorClick
             )
         }
-        item { OperatorButton(text = "( )") { onOperatorClick("()") } }
+        item { OperatorButton(text = "( )") { "()".apply { onOperatorClick("()") } } }
         item { OperatorButton(text = "%", clickable = onOperatorClick) }
         item { OperatorButton(text = "÷", clickable = onOperatorClick) }
 

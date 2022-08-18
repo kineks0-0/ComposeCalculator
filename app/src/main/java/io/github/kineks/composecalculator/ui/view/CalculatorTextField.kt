@@ -86,7 +86,7 @@ class CalculatorTextFieldState(
             if (text.lastOrNull() == 'e') setTextField("")
             if (text.lastOrNull() == 'i') setTextField("")
         }
-        _textFieldValue.value = _textFieldValue.value.add(text, offset)
+        value = value.add(text, offset)
     }
 
     fun deleteLast() {
@@ -115,7 +115,7 @@ class CalculatorTextFieldState(
 
     fun clearTextField(defValue: String = "0") {
         restState()
-        value = TextFieldValue(defValue)
+        value = TextFieldValue(defValue,TextRange(defValue.length))
         operatorBracketsCounts = 0
     }
 
