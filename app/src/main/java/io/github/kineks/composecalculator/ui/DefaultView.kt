@@ -123,7 +123,7 @@ fun DefaultView() {
                 var dropdownMenuExpanded by remember {
                     mutableStateOf(false)
                 }
-                // todo： 玄学 bug ，不在 button 里声明的话菜单可能会飞左下角
+                // 玄学 bug ，不在同一布局里声明的话菜单可能会飞左下角
                 Box(
                     modifier = Modifier
                         .statusBarsPadding()

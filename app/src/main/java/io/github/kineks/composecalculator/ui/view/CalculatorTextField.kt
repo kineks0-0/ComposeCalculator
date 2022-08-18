@@ -185,7 +185,10 @@ fun CalculatorTextField(
                         .alpha(0.8f)
                         .clickable {
                             // 点击可以将 Label 里的算式重新放回 输入框
-                            if (label.isNotEmpty()) setTextField(label)
+                            if (label.isNotEmpty()) {
+                                setTextField(label)
+                                label = ""
+                            }
                         })
             },
             isError = state.isError.value,
