@@ -1,8 +1,8 @@
 package io.github.kineks.composecalculator.ui.view
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,65 +25,60 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
-import androidx.compose.ui.unit.dp
 import io.github.kineks.composecalculator.add
+import io.github.kineks.composecalculator.cursorInsert
+import io.github.kineks.composecalculator.cursorSelection
+import io.github.kineks.composecalculator.cursorWhere
 
 class CalculatorTextFieldState(
     private var _textFieldValue: MutableState<TextFieldValue>,
     private var _textFieldLabel: MutableState<String>,
     val isError: MutableState<Boolean>,
-    val textFieldCursorEnabled: (CalculatorTextFieldState) -> Boolean,
-    val onDone: (KeyboardActionScope.(CalculatorTextFieldState) -> Unit)
+    val cursorEnabled: CalculatorTextFieldState.() -> Boolean,
+    val onDone: (KeyboardActionScope.(CalculatorTextFieldState) -> Unit),
+    val interactionSource: MutableInteractionSource = MutableInteractionSource()
 ) {
-    var value
+
+    var value: TextFieldValue
         get() = _textFieldValue.value
-        set(value) {
-            _textFieldValue.value = value
-        }
+        set(value) { _textFieldValue.value = value }
     var label
         get() = _textFieldLabel.value
-        set(value) {
-            _textFieldLabel.value = value
-        }
+        set(value) { _textFieldLabel.value = value }
+
+    val last: String? get() = when(true) {
+        value.text.isEmpty() -> null
+        (value.text.length == 1) -> value.text
+        else -> value.text[value.cursorWhere-1].toString()
+    }
+    val lastSecond: String? get() {
+        return if (value.text.length == 1)
+            null
+        else
+            value.text[value.cursorWhere-2].toString()
+    }
+
 
     fun isError() {
         isError.value = true
     }
 
-    fun isNoError() {
+    private fun isNoError() {
         isError.value = false
     }
-
-    fun deleteCursorInsertAdd(
-        text: String, index: () -> Int =
-            {
-                var i = 0
-                checkCursor { index, _, _, _, cursorHide, cursorInsert ->
-                    i = index
-                }
-                i
-            }
-    ) {
-        val where = index()
-        value = TextFieldValue(
-            StringBuilder(value.text).deleteCharAt(where - 1).insert(where - 1, text).toString(),
-            selection = TextRange(where)
-        )
-    }
-
-    fun deleteLastAdd(text: String) {
-        add(
-            value.text.substring(0, value.text.lastIndex) + text
-        )
-    }
-
-    fun add(
-        text: String,
-        offset: Int = 0,
-        callback: (index: Int, text: String, last: String?, OneChar: Boolean, cursorHide: Boolean, cursorInsert: Boolean) -> Unit = { _, _, _, _, _, _ -> }
-    ) {
+    private fun restState() {
         label = ""
         isNoError()
+    }
+
+    fun add(text: String, deleteLast: Boolean) {
+        if (deleteLast)
+            deleteLast()
+        add(text)
+    }
+
+    fun add(text: String, offset: Int = 0) {
+        restState()
         if (value.text == "0") {
             if (text.isNumber() && text != ".") setTextField("")
             if (text.lastOrNull() == '(') setTextField("")
@@ -91,50 +86,43 @@ class CalculatorTextFieldState(
             if (text.lastOrNull() == 'e') setTextField("")
             if (text.lastOrNull() == 'i') setTextField("")
         }
-        _textFieldValue.value = _textFieldValue.value.add(text, offset, callback)
+        _textFieldValue.value = _textFieldValue.value.add(text, offset)
     }
 
-    fun checkCursor(
-        offset: Int = 0,
-        callback: (index: Int, text: String, last: String?, OneChar: Boolean, cursorHide: Boolean, cursorInsert: Boolean) -> Unit = { _, _, _, _, _, _ -> }
-    ) {
-        _textFieldValue.value.add("", offset, callback)
-    }
-
-    fun deleteTextField() {
+    fun deleteLast() {
         when (value.text.length) {
             0 -> {}
-            1 -> {
-                clearTextField()
-                setTextField("")
-                //value = value.copy(selection = TextRange(0))
-            }
+            1 -> clearTextField("")
             else -> {
-                checkCursor { index, _, _, _, _, _ ->
+                if (value.cursorInsert)
                     setTextField(
-                        value.text.substring(
-                            0, value.text.lastIndex
-                        ),
-                        TextRange(index)
+                        value.text.substring(0, value.text.lastIndex),
+                        TextRange(value.cursorWhere)
                     )
-                }
-
+                if (value.cursorSelection)
+                    setTextField(
+                        value.text.replaceRange(
+                            startIndex = value.selection.min,
+                            endIndex = value.selection.max,
+                            ""
+                        ),
+                        index = TextRange(value.selection.min + 1)
+                    )
             }
         }
-        label = ""
+        restState()
     }
 
-    fun clearTextField() {
-        isNoError()
-        _textFieldValue.value = TextFieldValue("0")
-        _textFieldLabel.value = ""
-        operatorArithmeticBracketsStartCounts = 0
+    fun clearTextField(defValue: String = "0") {
+        restState()
+        value = TextFieldValue(defValue)
+        operatorBracketsCounts = 0
     }
 
     fun setTextField(text: String, index: TextRange = value.selection) {
         isNoError()
         _textFieldValue.value = TextFieldValue(
-            text = text, selection = index//TextRange(text.length)
+            text = text, selection = index
         )
     }
 
@@ -145,7 +133,7 @@ fun rememberCalculatorTextFieldState(
     textFieldValue: TextFieldValue = TextFieldValue("0"),
     textFieldLabel: String = "",
     isError: Boolean = false,
-    cursorEnabled: (CalculatorTextFieldState) -> Boolean = { it.value.text.isNotEmpty() },
+    cursorEnabled: CalculatorTextFieldState.() -> Boolean = { value.text.isNotEmpty() },
     onDone: (KeyboardActionScope.(CalculatorTextFieldState) -> Unit) = { }
 ) = rememberSaveable(saver = Saver(save = {
     arrayOf(it.value.text, it.label, it.isError.value.toString())
@@ -179,17 +167,19 @@ fun CalculatorTextField(
         TextField(
             value = value,
             onValueChange = {
-                if (it.text.length < value.text.length) {
-                    // 判断如果删除的是最后一位则尝试修正计数
-                    val itLast = it.text.lastOrNull()?.toString()
-                    val last = value.text.lastOrNull()?.toString()
-                    if (itLast != last && last?.isOperatorBracketStart() == true) operatorArithmeticBracketsStartCounts--
-                    if (itLast != last && last?.isOperatorBracketEnd() == true) operatorArithmeticBracketsStartCounts++
+                // 避免键盘或者输入法删除括号导致计数错误
+                operatorBracketsCounts = 0
+                it.text.forEach {
+                    when(it) {
+                        '(' -> operatorBracketsCounts++
+                        ')' -> operatorBracketsCounts--
+                    }
                 }
                 value = it
-            },// todo: 对比差异值 避免键盘删除括号导致括号计数异常
+            },
             label = {
-                Text(text = label,
+                Text(
+                    text = if (label.isNotEmpty()) "$label=" else label,
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier
                         .alpha(0.8f)
@@ -201,7 +191,7 @@ fun CalculatorTextField(
             isError = state.isError.value,
             keyboardActions = KeyboardActions(onDone = { onDone(state) }),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp),
+            interactionSource = interactionSource,
             modifier = modifier.fillMaxWidth(),
             // 根据文本长度调整大小，从而显示效果类似 TextView 的 AutoSize
             textStyle = TextStyle(
@@ -219,15 +209,13 @@ fun CalculatorTextField(
 
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
                 cursorColor =
-                if (textFieldCursorEnabled(state))
+                if (cursorEnabled())
                     MaterialTheme.colorScheme.primary
                 else
                     Color.Transparent,
 
-                //errorCursorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                //errorIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
                 focusedLeadingIconColor = Color.Transparent,
                 unfocusedLeadingIconColor = Color.Transparent,
@@ -243,7 +231,6 @@ fun CalculatorTextField(
                 focusedLabelColor = MaterialTheme.colorScheme.onSurface,
                 unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
                 disabledLabelColor = MaterialTheme.colorScheme.onSurface,
-                //errorLabelColor = MaterialTheme.colorScheme.onSurface,
 
                 placeholderColor = Color.Transparent,
                 disabledPlaceholderColor = Color.Transparent

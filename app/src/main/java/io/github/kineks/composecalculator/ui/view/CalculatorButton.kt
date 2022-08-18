@@ -134,18 +134,12 @@ val CalculatorNumberButton = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9",
 fun String?.isNumber(): Boolean = CalculatorNumberButton.indexOf(this) != -1
 fun String?.isOperator(): Boolean = CalculatorOperatorButton.indexOf(this) != -1
 fun String?.isOperatorMIN(): Boolean = "−" == this
+fun String?.isOperatorPercentage(): Boolean = "%" == this
 fun String?.isOperatorAC(): Boolean = "AC" == this
 fun String?.isOperatorBackSpace(): Boolean = "←" == this
 fun String?.isOperatorBracketStart(): Boolean = "(" == this
 fun String?.isOperatorBracketEnd(): Boolean = ")" == this
 fun String?.isOperatorBrackets(): Boolean = "()" == this || isOperatorBracketStart() || isOperatorBracketEnd()
-fun String.lastSecondChar(index: Int = lastIndex-1): Char? =
-    when(length) {
-        0 -> null
-        1 -> null
-        else -> get(index)
-    }
-fun String.lastSecondOrNull(index: Int = lastIndex-1): String? = lastSecondChar(index)?.toString()
 
 // 标记左括号的计数值,
-var operatorArithmeticBracketsStartCounts by mutableStateOf(0)
+var operatorBracketsCounts by mutableStateOf(0)

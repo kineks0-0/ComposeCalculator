@@ -5,57 +5,66 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import io.github.kineks.composecalculator.data.MathParser
 
+
 /**
  * 根据光标状态插入文本
  * @return TextFieldValue
  */
 fun TextFieldValue.add(
-    text: String,
-    offset: Int = 0,
-    callback: (index: Int, text: String,last: String?, OneChar: Boolean, cursorHide: Boolean, cursorInsert: Boolean) -> Unit = { _, _, _, _, _,_ -> }
+    string: String,
+    offset: Int = 0
 ): TextFieldValue {
 
-    if (text.isEmpty()&&this.text.isEmpty()) return this
+    // 两边都是空就没必要继续的必要了
+    if (string.isEmpty() && text.isEmpty()) return this
 
-    /**     不确定，看源码文档说得有点迷糊                                  */
+    /**     看源码文档貌似没有光标状态，只有一个表示选择范围的数值              */
     /**     为啥想从光标位置插入文本还得自己判断状态，还没法判断光标是否激活      */
-    //  由于 TextRange 索引是从 1 开始，0 代表光标被隐藏
-    //  所以实际和 String 的 index 偏移 1
+    //  由于 TextRange 索引 0 实际是从 输入框左边 开始,而且也没法获取光标是否显示
+    //  如果需要正常输入就没法在左边插入文本了
+
     var index: Int
     val stringBuilder = when (true) {
-        //  光标隐藏
-        (selection.max == 0) -> {
-            (this.text + text).apply {
-                index = length
-                callback(index, this@add.text, this@add.text.lastOrNull()?.toString(),text.length == 1,true,false)
-            }
+
+        //  光标隐藏 || 光标默认状态
+        cursorHide -> {
+            (text + string).apply { index = length }
         }
+
         //  光标插入
-        selection.collapsed -> {
-            StringBuilder(this.text).insert(selection.max, text).apply {
-                index = selection.max + text.length
-                callback(index, this@add.text,
-                    this@add.text[selection.max-1].toString(),text.length == 1,false,true)
+        cursorInsert -> {
+            StringBuilder(text).insert(selection.max, string).apply {
+                index = selection.max + string.length
             }
         }
+
         //  选中多个
         else -> {
             index = selection.min + 1
-            callback(index, this.text, this.text[selection.min].toString(),text.length == 1,false,false)
-            this.text.replaceRange(
+            text.replaceRange(
                 startIndex = selection.min,
                 endIndex = selection.max,
-                text
+                string
             )
         }
-    }.toString()
+    }
 
-    if (text.isEmpty()) return this
     return copy(
-        text = stringBuilder,
+        text = stringBuilder.toString(),
         selection = TextRange(index + offset)
     )
 }
+
+val TextFieldValue.cursorWhere: Int
+    get() = when (true) {
+        cursorHide -> text.length
+        cursorInsert -> selection.max
+        else -> selection.min + 1
+    }
+val TextFieldValue.cursorHide: Boolean get() = selection.max == 0
+val TextFieldValue.cursorInsert: Boolean get() = selection.collapsed
+val TextFieldValue.cursorSelection: Boolean get() = !selection.collapsed
+
 
 /**
  * 规范化算式并返回计算结果

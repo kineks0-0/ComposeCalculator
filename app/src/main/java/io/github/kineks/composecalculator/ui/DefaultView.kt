@@ -49,17 +49,17 @@ fun DefaultView() {
     // 开始计算
     val startCalculatingEquations: (CalculatorTextFieldState) -> Unit by remember {
         mutableStateOf({ state ->
+            // 清空输入框无效数据
+            if (state.value.text == getString(R.string.data_error)) {
+                state.clearTextField()
+                return@mutableStateOf
+            }
             try {
-                // 清空输入框无效数据
-                if (state.value.text == getString(R.string.data_error)) {
-                    state.clearTextField()
-                    return@mutableStateOf
-                }
                 // 如果括号没打完
-                if (operatorArithmeticBracketsStartCounts != 0) {
-                    while (operatorArithmeticBracketsStartCounts != 0) {
+                if (operatorBracketsCounts != 0) {
+                    while (operatorBracketsCounts != 0) {
                         state.add(")")
-                        operatorArithmeticBracketsStartCounts--
+                        operatorBracketsCounts--
                     }
                 }
                 // 将算式显示到输入框 label
@@ -76,203 +76,192 @@ fun DefaultView() {
             } catch (e: Exception) {
                 state.setTextField(getString(R.string.data_error))
                 state.isError()
-                Log.e("DefaultView",e.message,e)
+                Log.e("DefaultView", e.message, e)
             }
 
         })
     }
     // 输入框 State 管理
-    val textFieldState =
+    val state =
         rememberCalculatorTextFieldState(onDone = { startCalculatingEquations(it) })
 
 
-    Box(
+    // 自定义布局，自适应横竖屏
+    TheLayout(
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
     ) {
 
-        // 自定义布局，自适应横竖屏
-        TheLayout(boxScope = this) {
+        AnimatedVisibility(visible = colorDisplay) {
+            ColorList { colorDisplay = !colorDisplay }
+        }
 
-            AnimatedVisibility(visible = colorDisplay) {
-                ColorList { colorDisplay = !colorDisplay }
-            }
+        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.BottomEnd) {
 
-            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.BottomEnd) {
-
-                // 输入框背景
-                Surface(color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(
-                        bottomStart = if (isHorizontal()) 0.dp else 20.dp,
-                        bottomEnd = 20.dp
-                    ),
-                    tonalElevation = 5.dp,
-                    shadowElevation = 5.dp,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .isNotHorizontal {
-                            padding(bottom = 50.dp)
-                        }
-
-                ) { }
-
-                // 菜单
-                Box(
-                    modifier = Modifier.fillMaxHeight(),
-                    contentAlignment = Alignment.TopEnd
-                ) {
-                    var dropdownMenuExpanded by remember {
-                        mutableStateOf(false)
+            // 输入框背景
+            Surface(color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(
+                    bottomStart = if (isHorizontal()) 0.dp else 20.dp,
+                    bottomEnd = 20.dp
+                ),
+                tonalElevation = 5.dp,
+                shadowElevation = 5.dp,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .isNotHorizontal {
+                        padding(bottom = 50.dp)
                     }
-                    // todo： 玄学 bug ，不在 button 里声明的话菜单可能会飞左下角
-                    IconButton(
+
+            ) { }
+
+            // 菜单
+            Box(
+                modifier = Modifier.fillMaxHeight(),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                var dropdownMenuExpanded by remember {
+                    mutableStateOf(false)
+                }
+                // todo： 玄学 bug ，不在 button 里声明的话菜单可能会飞左下角
+                Box(
+                    modifier = Modifier
+                        .statusBarsPadding()
+                        .size(76.dp)
+                        .padding(end = 3.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        contentDescription = "Menu",
                         modifier = Modifier
                             .statusBarsPadding()
-                            .size(76.dp)
-                            .padding(end = 3.dp),
-                        onClick = { }
+                            .size(75.dp)
+                            .clip(RoundedCornerShape(50.dp))
+                            .clickable {
+                                dropdownMenuExpanded = !dropdownMenuExpanded
+                            }
+                            .padding(25.dp)
+                    )
+                    DropdownMenu(
+                        expanded = dropdownMenuExpanded,
+                        onDismissRequest = { dropdownMenuExpanded = false },
+                        modifier = Modifier.padding(end = 4.dp)
                     ) {
-                        Icon(imageVector = Icons.Default.MoreVert,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            contentDescription = "Menu",
-                            modifier = Modifier
-                                .statusBarsPadding()
-                                .size(75.dp)
-                                .clip(RoundedCornerShape(50.dp))
-                                .clickable {
-                                    dropdownMenuExpanded = !dropdownMenuExpanded
-                                }
-                                .padding(25.dp)
+
+                        DropdownMenuItem(
+                            text = {
+                                Text(stringResource(id = R.string.colors_list))
+                            },
+                            onClick = { colorDisplay = !colorDisplay },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Rounded.Palette,
+                                    contentDescription = "Colors List"
+                                )
+                            }
                         )
-                        DropdownMenu(
-                            expanded = dropdownMenuExpanded,
-                            onDismissRequest = { dropdownMenuExpanded = false },
-                            modifier = Modifier.padding(end = 4.dp)
-                        ) {
-
-                            DropdownMenuItem(
-                                text = {
-                                    Text(stringResource(id = R.string.colors_list))
-                                },
-                                onClick = { colorDisplay = !colorDisplay },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Rounded.Palette,
-                                        contentDescription = "Colors List"
-                                    )
-                                }
-                            )
-
-                        }
 
                     }
+
                 }
-
-                // 输入框
-                CalculatorTextField(state = textFieldState,
-                    modifier = Modifier
-                        .zIndex(1f)
-                        .isHorizontal {
-                            padding(start = 5.dp, end = 5.dp)
-                                .padding(10.dp)
-                        }
-                        .isNotHorizontal {
-                            padding(bottom = 50.dp, start = 2.dp)
-                        })
-
-
-                // 函数列表
-                RowOperatorButton {
-                    textFieldState.checkCursor { index, t, last, OneChar, cursorHide, cursorInsert ->
-                        when (it) {
-                            "sin", "abs" -> {
-                                textFieldState.add("$it(")
-                                operatorArithmeticBracketsStartCounts++
-                            }
-                            else -> {
-                                textFieldState.add(it)
-                            }
-                        }
-                    }
-                }
-
             }
 
-            // 计算器按钮
-            CalculatorButton(
-                onNumberClick = { text: String -> textFieldState.add(text) },
-                onOperatorClick = { text: String ->
-                    when (true) {
-                        // 复位
-                        isOperatorAC() -> {
-                            textFieldState.clearTextField()
-                        }
-                        // 删除键
-                        isOperatorBackSpace() -> {
-                            textFieldState.deleteTextField()
-                        }
-                        // 括号
-                        isOperatorBrackets() -> {
-                            textFieldState.checkCursor { _, _, last, _, _, _ ->
-                                when (true) {
-                                    (operatorArithmeticBracketsStartCounts != 0 && !last.isOperatorBracketStart()) -> {
-                                        textFieldState.add(")")
-                                        operatorArithmeticBracketsStartCounts--
-                                    }
-                                    else -> {
-                                        textFieldState.add("(")
-                                        operatorArithmeticBracketsStartCounts++
-                                    }
-                                }
-                            }
-                        }
-                        // 其他符号
-                        isOperator() -> {
-                            textFieldState.checkCursor { index, t, last, OneChar, cursorHide, cursorInsert ->
-                                val add: (String,Boolean) -> Unit = { value, delete ->
-                                    when (true) {
-                                        cursorHide -> if (delete) textFieldState.deleteLastAdd(value) else textFieldState.add(value)
-                                        cursorInsert -> if (delete) textFieldState.deleteCursorInsertAdd(value) else textFieldState.add(value)
-                                        else -> textFieldState.add(text)
-                                    }
-                                }
-                                when (true) {
-                                    (isOperatorMIN() && last.isOperatorMIN()) -> {
-                                        if (t.lastSecondOrNull(index-2).isOperatorMIN())
-                                            add(text, true)
-                                        else
-                                            add(text, false)
-                                    }
-                                    (last.isOperatorMIN() && t.lastSecondOrNull(index-2).isOperatorMIN()) -> {
-                                        add("",true)
-                                        add(text,true)
-                                    }
-                                    last.isOperator() -> add(text,true)
-                                    else -> add(text,false)
-                                }
-                            }
-                        }
-                        else -> throw Exception("Unknown Operator : $text")
-                    }
-
-                },
-                startCalculatingEquations = { startCalculatingEquations(textFieldState) },
+            // 输入框
+            CalculatorTextField(state = state,
                 modifier = Modifier
+                    .zIndex(1f)
                     .isHorizontal {
-                        weight(1.1f)
-                            .padding(horizontal = 25.dp)
-                            .padding(top = 7.dp, bottom = 6.dp, start = 2.dp)
-                            .statusBarsPadding()
+                        padding(start = 5.dp, end = 5.dp)
+                            .padding(10.dp)
                     }
                     .isNotHorizontal {
-                        padding(10.dp)
+                        padding(bottom = 50.dp, start = 2.dp)
                     })
 
 
+            // 函数列表
+            RowOperatorButton {
+                when (it) {
+                    "sin", "abs" -> {
+                        state.add("$it(")
+                        operatorBracketsCounts++
+                    }
+                    else -> {
+                        state.add(it)
+                    }
+                }
+            }
+
         }
 
+        // 计算器按钮
+        CalculatorButton(
+            onNumberClick = { text: String -> state.add(text) },
+            onOperatorClick = { text: String ->
+                when (true) {
+                    // 复位
+                    isOperatorAC() -> {
+                        state.clearTextField()
+                    }
+                    // 删除键
+                    isOperatorBackSpace() -> {
+                        state.deleteLast()
+                    }
+                    // 括号
+                    isOperatorBrackets() -> {
+                        when (true) {
+                            (operatorBracketsCounts != 0 && !state.last.isOperatorBracketStart()) -> {
+                                state.add(")")
+                                operatorBracketsCounts--
+                            }
+                            else -> {
+                                state.add("(")
+                                operatorBracketsCounts++
+                            }
+                        }
+                    }
+                    // 其他符号
+                    isOperator() -> {
+                        state.apply {
+                            when (true) {
+                                isOperatorPercentage() -> {
+                                    if (last.isNumber())
+                                        add(text)
+                                }
+                                //  对于需要输入负数的情况
+                                (isOperatorMIN() && last.isOperator()) -> {
+                                    add(text, lastSecond.isOperator())
+                                }
+                                // 替换 --
+                                (last.isOperatorMIN() && lastSecond.isOperator()) -> {
+                                    deleteLast()
+                                    add(text, true)
+                                }
+                                (last.isOperator() && !last.isOperatorPercentage()) -> add(text, true)
+                                else -> add(text)
+                            }
+                        }
+                    }
+                    else -> throw Exception("Unknown Operator : $text")
+                }
+
+            },
+            startCalculatingEquations = { startCalculatingEquations(state) },
+            modifier = Modifier
+                .isHorizontal {
+                    weight(1.1f)
+                        .padding(horizontal = 25.dp)
+                        .padding(top = 7.dp, bottom = 6.dp, start = 2.dp)
+                        .statusBarsPadding()
+                }
+                .isNotHorizontal {
+                    padding(10.dp)
+                })
+
+
     }
+
 
 }
 
