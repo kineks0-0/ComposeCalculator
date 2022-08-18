@@ -95,7 +95,9 @@ class CalculatorTextFieldState(
             else -> {
                 if (value.cursorInsert)
                     setTextField(
-                        value.text.substring(0, value.text.lastIndex),
+                        StringBuilder(value.text)
+                            .deleteAt(value.cursorWhere(cursorHide())-1)
+                            .toString(),
                         TextRange(value.cursorWhere(cursorHide()))
                     )
                 if (value.cursorSelection)

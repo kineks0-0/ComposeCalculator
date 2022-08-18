@@ -11,13 +11,13 @@ import io.github.kineks.composecalculator.data.MathParser
  * @return TextFieldValue
  */
 fun TextFieldValue.add(
-    string: String,
+    newText: String,
     offset: Int = 0,
     cursorHide: Boolean
 ): TextFieldValue {
 
     // 两边都是空就没必要继续的必要了
-    if (string.isEmpty() && text.isEmpty()) return this
+    if (newText.isEmpty() && text.isEmpty()) return this
 
 
     var index: Int
@@ -25,13 +25,13 @@ fun TextFieldValue.add(
 
         //  光标隐藏 || 光标默认状态
         cursorHide -> {
-            (text + string).apply { index = length }
+            (text + newText).apply { index = length }
         }
 
         //  光标插入
         cursorInsert -> {
-            StringBuilder(text).insert(selection.max, string).apply {
-                index = selection.max + string.length
+            StringBuilder(text).insert(selection.max, newText).apply {
+                index = selection.max + newText.length
             }
         }
 
@@ -41,7 +41,7 @@ fun TextFieldValue.add(
             text.replaceRange(
                 startIndex = selection.min,
                 endIndex = selection.max,
-                string
+                newText
             )
         }
     }
