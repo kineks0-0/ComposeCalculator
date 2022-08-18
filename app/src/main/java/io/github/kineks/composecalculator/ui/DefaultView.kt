@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -17,12 +16,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import io.github.kineks.composecalculator.R
 import io.github.kineks.composecalculator.getString
 import io.github.kineks.composecalculator.parse
@@ -36,12 +33,6 @@ import io.github.kineks.composecalculator.ui.view.*
 
 @Composable
 fun DefaultView() {
-    // 沉浸状态栏
-    val systemUiController = rememberSystemUiController()
-    val useDarkIcons = !isSystemInDarkTheme()
-    SideEffect {
-        systemUiController.setStatusBarColor(Color.Transparent, useDarkIcons)
-    }
 
     // 显示颜色列表
     var colorDisplay by remember {
@@ -102,6 +93,7 @@ fun DefaultView() {
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
+            .navigationBarsPadding()
     ) {
 
         AnimatedVisibility(visible = colorDisplay) {
@@ -128,7 +120,7 @@ fun DefaultView() {
 
             // 菜单
             Box(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier.fillMaxHeight().statusBarsPadding(),
                 contentAlignment = Alignment.TopEnd
             ) {
                 var dropdownMenuExpanded by remember {
@@ -137,7 +129,6 @@ fun DefaultView() {
                 // 玄学 bug ，不在同一布局里声明的话菜单可能会飞左下角
                 Box(
                     modifier = Modifier
-                        .statusBarsPadding()
                         .size(76.dp)
                         .padding(end = 3.dp)
                 ) {
@@ -261,13 +252,13 @@ fun DefaultView() {
             startCalculatingEquations = { startCalculatingEquations(state) },
             modifier = Modifier
                 .isHorizontal {
-                    weight(1.1f)
+                    weight(1.0f)
+                        .statusBarsPadding()
                         .padding(horizontal = 25.dp)
                         .padding(top = 7.dp, bottom = 6.dp, start = 2.dp)
-                        .statusBarsPadding()
                 }
                 .isNotHorizontal {
-                    weight(1.05f)
+                    weight(1.1f)
                         .padding(10.dp)
                 })
 
