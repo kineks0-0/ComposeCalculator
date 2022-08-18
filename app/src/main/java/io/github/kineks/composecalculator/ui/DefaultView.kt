@@ -82,9 +82,10 @@ fun DefaultView() {
     // 输入框 State 管理
     val state =
         rememberCalculatorTextFieldState(
-            onDone = { startCalculatingEquations(it) },
             interactionSource = interactionSource,
-            cursorHide = { textFieldPressed.value }
+            cursorHide = { textFieldPressed.value },
+            onValueChange = { updateBracketsCounts(it) },
+            onDone = { startCalculatingEquations(it) }
         )
 
 

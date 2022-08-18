@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.kineks.composecalculator.ui.layout.isHorizontal
@@ -143,3 +144,13 @@ fun String?.isOperatorBrackets(): Boolean = "()" == this || isOperatorBracketSta
 
 // 标记左括号的计数值,
 var operatorBracketsCounts by mutableStateOf(0)
+fun updateBracketsCounts(textFieldValue: TextFieldValue) {
+    // 避免键盘或者输入法删除括号导致计数错误
+    operatorBracketsCounts = 0
+    textFieldValue.text.forEach {
+        when (it) {
+            '(' -> operatorBracketsCounts++
+            ')' -> operatorBracketsCounts--
+        }
+    }
+}

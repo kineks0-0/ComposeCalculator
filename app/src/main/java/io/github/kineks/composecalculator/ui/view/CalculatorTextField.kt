@@ -34,6 +34,7 @@ class CalculatorTextFieldState(
     val interactionSource: MutableInteractionSource,
     val cursorEnabled: CalculatorTextFieldState.() -> Boolean,
     val cursorHide: CalculatorTextFieldState.() -> Boolean,
+    val onValueChange: CalculatorTextFieldState.(TextFieldValue) -> Unit,
     val onDone: (KeyboardActionScope.(CalculatorTextFieldState) -> Unit)
 ) {
 
@@ -106,6 +107,7 @@ class CalculatorTextFieldState(
                         ),
                         index = TextRange(value.selection.min + 1)
                     )
+                onValueChange(value)
             }
         }
         restState()
@@ -134,6 +136,7 @@ fun rememberCalculatorTextFieldState(
     interactionSource: MutableInteractionSource = MutableInteractionSource(),
     cursorEnabled: CalculatorTextFieldState.() -> Boolean = { value.text.isNotEmpty() },
     cursorHide: CalculatorTextFieldState.() -> Boolean = { value.cursorHide },
+    onValueChange: CalculatorTextFieldState.(TextFieldValue) -> Unit = { },
     onDone: (KeyboardActionScope.(CalculatorTextFieldState) -> Unit) = { }
 ) = rememberSaveable(saver = Saver(save = {
     arrayOf(it.value.text, it.label, it.isError.value.toString())
@@ -145,6 +148,7 @@ fun rememberCalculatorTextFieldState(
         interactionSource,
         cursorEnabled,
         cursorHide,
+        onValueChange,
         onDone
     )
 })) {
@@ -155,6 +159,7 @@ fun rememberCalculatorTextFieldState(
         interactionSource,
         cursorEnabled,
         cursorHide,
+        onValueChange,
         onDone
     )
 }
@@ -170,16 +175,9 @@ fun CalculatorTextField(
     state.apply {
         TextField(
             value = value,
-            onValueChange = { textFieldValue ->
-                // 避免键盘或者输入法删除括号导致计数错误
-                operatorBracketsCounts = 0
-                textFieldValue.text.forEach {
-                    when(it) {
-                        '(' -> operatorBracketsCounts++
-                        ')' -> operatorBracketsCounts--
-                    }
-                }
-                value = textFieldValue
+            onValueChange = {
+                state.onValueChange(it)
+                value = it
             },
             label = {
                 Text(
