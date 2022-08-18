@@ -170,20 +170,20 @@ fun CalculatorTextField(
     state.apply {
         TextField(
             value = value,
-            onValueChange = {
+            onValueChange = { textFieldValue ->
                 // 避免键盘或者输入法删除括号导致计数错误
                 operatorBracketsCounts = 0
-                it.text.forEach {
+                textFieldValue.text.forEach {
                     when(it) {
                         '(' -> operatorBracketsCounts++
                         ')' -> operatorBracketsCounts--
                     }
                 }
-                value = it
+                value = textFieldValue
             },
             label = {
                 Text(
-                    text = if (label.isNotEmpty()) "$label=" else label,
+                    text = if (label.isNotEmpty()) "$label =" else label,
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier
                         .alpha(0.8f)

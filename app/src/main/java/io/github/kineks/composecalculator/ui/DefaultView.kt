@@ -120,7 +120,9 @@ fun DefaultView() {
 
             // 菜单
             Box(
-                modifier = Modifier.fillMaxHeight().statusBarsPadding(),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .statusBarsPadding(),
                 contentAlignment = Alignment.TopEnd
             ) {
                 var dropdownMenuExpanded by remember {
@@ -199,56 +201,8 @@ fun DefaultView() {
 
         // 计算器按钮
         CalculatorButton(
-            onNumberClick = { text: String -> state.add(text) },
-            onOperatorClick = { text: String ->
-                when (true) {
-                    // 复位
-                    isOperatorAC() -> {
-                        state.clearTextField()
-                    }
-                    // 删除键
-                    isOperatorBackSpace() -> {
-                        state.deleteLast()
-                    }
-                    // 括号
-                    isOperatorBrackets() -> {
-                        when (true) {
-                            (operatorBracketsCounts != 0 && !state.last.isOperatorBracketStart()) -> {
-                                state.add(")")
-                                operatorBracketsCounts--
-                            }
-                            else -> {
-                                state.add("(")
-                                operatorBracketsCounts++
-                            }
-                        }
-                    }
-                    // 其他符号
-                    isOperator() -> {
-                        state.apply {
-                            when (true) {
-                                isOperatorPercentage() -> {
-                                    if (last.isNumber())
-                                        add(text)
-                                }
-                                //  对于需要输入负数的情况
-                                (isOperatorMIN() && last.isOperator()) -> {
-                                    add(text, lastSecond.isOperator())
-                                }
-                                // 替换 --
-                                (last.isOperatorMIN() && lastSecond.isOperator()) -> {
-                                    deleteLast()
-                                    add(text, true)
-                                }
-                                (last.isOperator() && !last.isOperatorPercentage()) -> add(text, true)
-                                else -> add(text)
-                            }
-                        }
-                    }
-                    else -> throw Exception("Unknown Operator : $text")
-                }
-
-            },
+            onNumberClick = { onClick(this, state) },
+            onOperatorClick = { onClick(this, state) },
             startCalculatingEquations = { startCalculatingEquations(state) },
             modifier = Modifier
                 .isHorizontal {
@@ -260,13 +214,71 @@ fun DefaultView() {
                 .isNotHorizontal {
                     weight(1.1f)
                         .padding(10.dp)
-                })
+                }
+        )
 
 
     }
 
 
 }
+
+
+val onClick: String.(String, CalculatorTextFieldState) -> Unit = { text, state ->
+    if (state.value.text == getString(R.string.data_error))
+        state.clearTextField()
+    when (true) {
+        // 复位
+        isOperatorAC() -> {
+            state.clearTextField()
+        }
+        // 删除键
+        isOperatorBackSpace() -> {
+            state.deleteLast()
+        }
+        isNumber() -> {
+            state.add(text)
+        }
+        // 括号
+        isOperatorBrackets() -> {
+            when (true) {
+                (operatorBracketsCounts != 0 && !state.last.isOperatorBracketStart()) -> {
+                    state.add(")")
+                    operatorBracketsCounts--
+                }
+                else -> {
+                    state.add("(")
+                    operatorBracketsCounts++
+                }
+            }
+        }
+        // 其他符号
+        isOperator() -> {
+            state.apply {
+                when (true) {
+                    isOperatorPercentage() -> {
+                        if (last.isNumber())
+                            add(text)
+                    }
+                    //  对于需要输入负数的情况
+                    (isOperatorMIN() && last.isOperator()) -> {
+                        add(text, lastSecond.isOperator())
+                    }
+                    // 替换 --
+                    (last.isOperatorMIN() && lastSecond.isOperator()) -> {
+                        deleteLast()
+                        add(text, true)
+                    }
+                    (last.isOperator() && !last.isOperatorPercentage()) -> add(text, true)
+                    else -> add(text)
+                }
+            }
+        }
+        else -> throw Exception("Unknown Operator : $text")
+    }
+
+}
+
 
 
 @Preview(showBackground = true)

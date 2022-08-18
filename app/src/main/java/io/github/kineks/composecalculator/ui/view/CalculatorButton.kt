@@ -79,7 +79,7 @@ fun CalculatorButton(
         }
         item { NumberButton(text = "0", clickable = onNumberClick) }
         item {
-            NumberButton(text = "•", clickable = { onNumberClick(".") })
+            NumberButton(text = "•", clickable = { ".".apply { onNumberClick(".") } })
         }
         item {
             OperatorButton(
