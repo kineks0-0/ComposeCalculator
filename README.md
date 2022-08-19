@@ -2,13 +2,31 @@
 基于 Compose With  Material Design 3 的计算器
 <br>
 <br>
-![介绍图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(11).webp?raw=true)
-![介绍图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(7).webp?raw=true)
+
+![介绍图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(11).webp?raw=true)
+
+![介绍图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(7).webp?raw=true)
+
+## 演示
+https://user-images.githubusercontent.com/51161092/185699214-aff2212e-70a5-46e1-b8c1-31e410eba9a0.mp4
+
+
+
 <br>
+
 ## 简介
-### UI
-直接抄谷歌自家那个的计算器，    
-不过横屏为了实现一套布局自适应横竖屏就没一样了。
+
+### UI设计
+直接抄谷歌自家的计算器，    
+不过横屏为了实现 一套布局 自适应横竖屏就没一样了。
+
+### 功能
+- 基础四则运算 *(%作为百分比处理)*
+- 算式优先度运算
+- 函数 cos, sin 和 常量 pi, e
+- 布局自适配不同屏幕大小 *(益得Compose的优势)* 和 添加异形屏沉浸
+- 对于输入体验做了优化(例如自动输入左括号和右括号，以及运算符号）
+
 ## 实现
 个人觉得最有意思的是通过自定义布局实现一套布局自适应横竖屏。
 > 多说无益，上代码。
@@ -73,7 +91,7 @@ fun TheLayoutPreview() {
 }
 ```
 
-![示例图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/TheLayoutCodeExample.webp?raw=true)
+![示例图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/TheLayoutCodeExample.webp?raw=true)
 
 <br>
 
@@ -187,6 +205,6 @@ fun Modifier.isNotHorizontal(doWork: Modifier.() -> Modifier) = composed {
 
 ## 虽然关系不大但还是想加上的几张图
 
-![介绍图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17.webp?raw=true)
-![介绍图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(8).webp?raw=true)
-![介绍图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(10).webp?raw=true)
+![介绍图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17.webp?raw=true)
+![介绍图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(8).webp?raw=true)
+![介绍图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(10).webp?raw=true)
