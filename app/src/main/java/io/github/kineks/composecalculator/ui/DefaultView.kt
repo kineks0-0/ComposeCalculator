@@ -5,7 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -77,13 +77,13 @@ fun DefaultView() {
     val interactionSource: MutableInteractionSource by remember {
         mutableStateOf(MutableInteractionSource())
     }
-    val textFieldPressed = interactionSource.collectIsPressedAsState()
+    val textFieldPressed = interactionSource.collectIsFocusedAsState()
 
     // 输入框 State 管理
     val state =
         rememberCalculatorTextFieldState(
             interactionSource = interactionSource,
-            cursorHide = { textFieldPressed.value },
+            cursorHide = { !textFieldPressed.value },
             onValueChange = { updateBracketsCounts(it) },
             onDone = { startCalculatingEquations(it) }
         )
@@ -261,19 +261,32 @@ val onClick: String.(String, CalculatorTextFieldState) -> Unit = { text, state -
         isOperator() -> {
             state.apply {
                 when (true) {
+                    // 如果最后一个是数字直接添加，其他分支走符号处理
                     isOperatorPercentage() -> {
-                        if (last.isNumber())
-                            add(text)
+                        when(true) {
+                            last.isNumber() -> add(text)
+                            (last.isOperatorMIN() && lastSecond.isOperator()) -> {
+                                deleteLast()
+                                add(text,true)
+                            }
+                            last.isOperator() -> {
+                                if (lastSecond.isOperatorPercentage())
+                                    deleteLast()
+                                add(text, true)
+                            }
+                            else -> {}
+                        }
                     }
                     //  对于需要输入负数的情况
                     (isOperatorMIN() && last.isOperator()) -> {
                         add(text, lastSecond.isOperator())
                     }
                     // 替换 --
-                    (last.isOperatorMIN() && lastSecond.isOperator()) -> {
+                    (last.isOperatorMIN() && lastSecond.isOperator() && !lastSecond.isOperatorPercentage()) -> {
                         deleteLast()
                         add(text, true)
                     }
+                    // 运算符号处理需要排除百分号
                     (last.isOperator() && !last.isOperatorPercentage()) -> add(text, true)
                     else -> add(text)
                 }

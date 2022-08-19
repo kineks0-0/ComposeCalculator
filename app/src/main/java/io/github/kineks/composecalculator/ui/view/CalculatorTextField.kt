@@ -58,6 +58,7 @@ class CalculatorTextFieldState(
     }
 
 
+
     fun isError() {
         isError.value = true
     }
@@ -98,7 +99,7 @@ class CalculatorTextFieldState(
                         StringBuilder(value.text)
                             .deleteAt(value.cursorWhere(cursorHide())-1)
                             .toString(),
-                        TextRange(value.cursorWhere(cursorHide()))
+                        TextRange(value.cursorWhere(cursorHide())-1)
                     )
                 if (value.cursorSelection)
                     setTextField(
