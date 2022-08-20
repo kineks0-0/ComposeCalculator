@@ -8,7 +8,8 @@
 ![介绍图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(7).webp?raw=true)
 
 ## 演示
-https://user-images.githubusercontent.com/51161092/185699214-aff2212e-70a5-46e1-b8c1-31e410eba9a0.mp4
+
+https://user-images.githubusercontent.com/51161092/185769482-542255c5-8702-472a-97e8-cf25fc886418.mp4
 
 
 
@@ -23,7 +24,7 @@ https://user-images.githubusercontent.com/51161092/185699214-aff2212e-70a5-46e1-
 ### 功能
 - 基础四则运算 *(%作为百分比处理)*
 - 算式优先度运算
-- 函数 cos, sin 和 常量 pi, e
+- 函数 sin, abs 和 常量 pi, e
 - 布局自适配不同屏幕大小 *(益得Compose的优势)* 和 添加异形屏沉浸
 - 对于输入体验做了优化(例如自动输入左括号和右括号，以及运算符号）
 
