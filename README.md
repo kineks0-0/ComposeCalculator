@@ -30,7 +30,11 @@ https://user-images.githubusercontent.com/51161092/185769482-542255c5-8702-472a-
 
 ## 实现
 个人觉得最有意思的是通过自定义布局实现一套布局自适应横竖屏。
+
+> *注意：官方推荐使用 窗口大小类（WindowSizeClasses）自适应布局*
+
 > 多说无益，上代码。
+
 ### TheLayout 示例调用
 ```kotlin
 @Preview(showBackground = true)
