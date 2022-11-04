@@ -3,9 +3,9 @@
 <br>
 <br>
 
-![介绍图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(11).webp?raw=true)
+![介绍图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(11).webp?raw=true)
 
-![介绍图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(7).webp?raw=true)
+![介绍图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(7).webp?raw=true)
 
 ## 演示
 
@@ -19,19 +19,19 @@ https://user-images.githubusercontent.com/51161092/185769482-542255c5-8702-472a-
 
 ### UI设计
 直接抄谷歌自家的计算器，    
-不过横屏为了实现 一套布局 自适应横竖屏就没一样了。
+不过为了实现 “ 一套布局 ” 自适应横竖屏，横屏布局就没一样了。
 
 ### 功能
 - 基础四则运算 *(%作为百分比处理)*
 - 算式优先度运算
 - 函数 sin, abs 和 常量 pi, e
 - 布局自适配不同屏幕大小 *(益得Compose的优势)* 和 添加异形屏沉浸
-- 对于输入体验做了优化(例如自动输入左括号和右括号，以及运算符号）
+- 对于输入体验做了优化(例如自动处理左括号和右括号，以及运算符号）
 
 ## 实现
 个人觉得最有意思的是通过自定义布局实现一套布局自适应横竖屏。
 
-> *注意：官方推荐使用 窗口大小类（WindowSizeClasses）自适应布局*
+> *注意：官方推荐使用 窗口大小类（WindowSizeClasses）实现自适应布局*
 
 > 多说无益，上代码。
 
@@ -96,7 +96,7 @@ fun TheLayoutPreview() {
 }
 ```
 
-![示例图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/TheLayoutCodeExample.webp?raw=true)
+![示例图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/TheLayoutCodeExample.webp?raw=true)
 
 <br>
 
@@ -158,9 +158,9 @@ fun TheLayout(
 ```
 <br>
 <br>
-但会发现 Column 和 Row 混用导致像是 Modifier.weight() 之类由 布局Scope 提供的 Modifier 扩展函数没法用。
+但会发现 Column 和 Row 混用导致像是 Modifier.weight() 之类由 布局作用域 内提供的 Modifier 扩展函数没法用。
 <br>
-不过翻源码实现可以发现扩展函数是由 ColumnScope 和 RowScope 提供的,只要自己也实现一个自己 Scope 的 Modifier 扩展函数就行。
+不过翻源码实现可以发现扩展函数是由 ColumnScope 和 RowScope 提供的,只要给自定义布局也实现作用域相应的 Modifier 扩展函数就行。
 <br>
 <br>
 
@@ -190,7 +190,7 @@ class TheLayoutScopeInstance(
 }
 ```
 
-然后再加上自定义 Modifier 的扩展函数就差不多了
+然后可以考虑再加上下面这两个自定义 Modifier 的扩展函数
 
 > 非必要实现，但对于实际使用来说很方便
 
@@ -210,6 +210,6 @@ fun Modifier.isNotHorizontal(doWork: Modifier.() -> Modifier) = composed {
 
 ## 虽然关系不大但还是想加上的几张图
 
-![介绍图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17.webp?raw=true)
-![介绍图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(8).webp?raw=true)
-![介绍图](https://ghproxy.com/https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(10).webp?raw=true)
+![介绍图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17.webp?raw=true)
+![介绍图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(8).webp?raw=true)
+![介绍图](https://github.com/kineks0-0/ComposeCalculator/blob/master/dosc/2022-08-17%20(10).webp?raw=true)
